@@ -6,24 +6,26 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { AppSidebar } from '@/components/app-sidebar';
 import { SiteHeader } from '@/components/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import Navbar from '@/components/navbar';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const hideNavbar = pathname === '/' || pathname === '/login';
+  const isAuthPage = pathname === '/' || pathname === '/login';
 
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="flex min-h-screen">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <SidebarProvider>
-            {hideNavbar ? (
+            {isAuthPage ? (
               <main className="flex flex-1 flex-col p-4">{children}</main>
             ) : (
               <>
                 <AppSidebar variant="inset" />
                 <SidebarInset>
+                  <Navbar /> {/* Navbar agora aparece corretamente */}
                   <SiteHeader />
-                  <main className="flex flex-1 flex-col p-4">{children}</main>
+                  <main className="flex flex-1 flex-col p-4 pt-16">{children}</main>
                 </SidebarInset>
               </>
             )}
