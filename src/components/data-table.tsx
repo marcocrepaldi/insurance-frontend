@@ -24,7 +24,7 @@ import {
   ColumnDef,
   ColumnFiltersState,
   Row,
-  SortingState,
+  SortingState, 
   VisibilityState,
   flexRender,
   getCoreRowModel,
@@ -37,7 +37,6 @@ import {
 } from "@tanstack/react-table"
 import {
   CheckCircle2Icon,
-  CheckCircleIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
