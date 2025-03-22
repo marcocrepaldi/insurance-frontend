@@ -23,9 +23,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <>
                 <AppSidebar variant="inset" />
                 <SidebarInset>
-                  <Navbar /> {/* Navbar agora aparece corretamente */}
-                  <SiteHeader />
-                  <main className="flex flex-1 flex-col p-4 pt-16">{children}</main>
+                  <Navbar />
+                  {/* SiteHeader fora da pilha da Navbar, com espaço próprio */}
+                  <div className="relative z-40 mt-16">
+                    <SiteHeader />
+                  </div>
+                  <main className="flex flex-1 flex-col px-4 pt-4">
+                    {children}
+                  </main>
                 </SidebarInset>
               </>
             )}
