@@ -1,4 +1,3 @@
-
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { DataTable } from "@/components/data-table"
 import { SectionCards } from "@/components/section-cards"
@@ -10,14 +9,29 @@ export default function Page() {
   return (
     <SidebarProvider>
       <SidebarInset>
-         <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col bg-background text-foreground">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+              <h1 className="text-2xl font-bold px-4 lg:px-6 text-primary">
+                Dashboard
+              </h1>
+
+              {/* Cartões com estatísticas principais */}
               <SectionCards />
+
+              {/* Gráfico interativo */}
               <div className="px-4 lg:px-6">
-                <ChartAreaInteractive />
+                <div className="rounded-xl border bg-accent p-4 shadow-sm">
+                  <ChartAreaInteractive />
+                </div>
               </div>
-              <DataTable data={data} />
+
+              {/* Tabela de dados */}
+              <div className="px-4 lg:px-6">
+                <div className="rounded-xl border bg-card p-4 shadow-sm">
+                  <DataTable data={data} />
+                </div>
+              </div>
             </div>
           </div>
         </div>
