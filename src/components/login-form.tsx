@@ -1,31 +1,50 @@
-"use client";
+'use client'
 
-import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import axios from 'axios'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { toast } from 'sonner'
 
 export function LoginForm({
   className,
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
-  const router = useRouter();
+}: React.ComponentPropsWithoutRef<'div'>) {
+  const router = useRouter()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    router.push("/dashboard");
-  };
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+
+    try {
+      // Enviar credenciais para a API de login
+      const response = await axios.post(
+        'https://insurance-api-production-55fa.up.railway.app/api/auth/login',
+        { email, password }
+      )
+
+      const token = response.data.access_token // Supondo que o token venha como 'access_token'
+      localStorage.setItem('jwt_token', token) // Armazenar o token no localStorage
+
+      toast.success('Login bem-sucedido!')
+      router.push('/dashboard') // Redireciona para o dashboard após login
+
+    } catch (error) {
+      toast.error('Falha no login. Verifique suas credenciais.')
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={className} {...props}>
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Welcome back</CardTitle>
@@ -56,6 +75,8 @@ export function LoginForm({
                     id="email"
                     type="email"
                     placeholder="m@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
@@ -69,14 +90,20 @@ export function LoginForm({
                       Forgot your password?
                     </a>
                   </div>
-                  <Input id="password" type="password" required />
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
                 </div>
-                <Button type="submit" className="w-full">
-                  Login
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? 'Carregando...' : 'Login'}
                 </Button>
               </div>
               <div className="text-center text-sm">
-                Don&apos;t have an account?{" "}
+                Don&apos;t have an account?{' '}
                 <a href="#" className="underline underline-offset-4">
                   Sign up
                 </a>
@@ -86,9 +113,9 @@ export function LoginForm({
         </CardContent>
       </Card>
       <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
+        By clicking continue, you agree to our <a href="#">Terms of Service</a>{' '}
         and <a href="#">Privacy Policy</a>.
       </div>
     </div>
-  );
+  )
 }
