@@ -7,6 +7,7 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { SiteHeader } from '@/components/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import Navbar from '@/components/navbar';
+import { Toaster } from "@/components/ui/sonner"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="flex min-h-screen">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <SidebarProvider>
+          <Toaster />
             {isAuthPage ? (
               <main className="flex flex-1 flex-col p-4">{children}</main>
             ) : (
@@ -29,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <SiteHeader />
                   </div>
                   <main className="flex flex-1 flex-col px-4 pt-4">
-                    {children}
+                    {children}                  
                   </main>
                 </SidebarInset>
               </>

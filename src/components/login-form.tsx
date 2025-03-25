@@ -4,7 +4,13 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
@@ -23,22 +29,25 @@ export function LoginForm({
     setLoading(true)
 
     try {
-      // Enviar credenciais para a API de login
       const response = await axios.post(
         'https://insurance-api-production-55fa.up.railway.app/api/auth/login',
         { email, password }
       )
 
       const token = response.data.accessToken
-
-      localStorage.setItem('jwt_token', token) // Armazenar o token no localStorage
+      localStorage.setItem('jwt_token', token)
 
       toast.success('Login bem-sucedido!')
-      router.push('/dashboard') // Redireciona para o dashboard após login
+      router.push('/dashboard')
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message ||
+        'Falha no login. Verifique suas credenciais.'
 
-    } catch (error) {
-      toast.error('Falha no login. Verifique suas credenciais.')
-      console.error(error)
+      toast.error(
+        typeof message === 'string' ? message : message.join(', ')
+      )
+      console.error('Erro no login:', error)
     } finally {
       setLoading(false)
     }
