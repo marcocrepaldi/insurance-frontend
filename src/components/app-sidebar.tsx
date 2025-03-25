@@ -74,6 +74,11 @@ const data = {
       icon: SettingsIcon,
     },
     {
+      title: "Usuários",
+      url: "/users",
+      icon: UsersIcon,
+    },
+    {
       title: "Get Help",
       url: "#",
       icon: HelpCircleIcon,
@@ -84,6 +89,7 @@ const data = {
       icon: SearchIcon,
     },
   ],
+  
   documents: [
     {
       name: "Data Library",

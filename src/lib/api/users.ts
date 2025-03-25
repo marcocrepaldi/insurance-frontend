@@ -1,9 +1,7 @@
-// src/lib/api/users.ts
-
 import axios from 'axios'
 
 export async function fetchUsers() {
-  const token = localStorage.getItem('jwt_token') // Obter o token armazenado
+  const token = localStorage.getItem('accessToken') // Corrigido aqui!
 
   if (!token) {
     throw new Error('Token não encontrado. Usuário não autenticado.')
@@ -13,7 +11,7 @@ export async function fetchUsers() {
     'https://insurance-api-production-55fa.up.railway.app/api/users',
     {
       headers: {
-        Authorization: `Bearer ${token}`, // Inclui o token no cabeçalho
+        Authorization: `Bearer ${token}`, // Cabeçalho correto
       },
     }
   )

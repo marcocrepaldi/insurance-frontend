@@ -29,7 +29,8 @@ export function LoginForm({
         { email, password }
       )
 
-      const token = response.data.access_token // Supondo que o token venha como 'access_token'
+      const token = response.data.accessToken
+
       localStorage.setItem('jwt_token', token) // Armazenar o token no localStorage
 
       toast.success('Login bem-sucedido!')
