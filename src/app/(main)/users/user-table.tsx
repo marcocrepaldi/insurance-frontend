@@ -1,11 +1,11 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Trash } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { User } from '@/schemas/user'
-import { DataTableUser } from '../../../components/tables/data-table-user'
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { Trash } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { User } from "@/schemas/user"
+import { DataTableUser } from "../../../components/tables/data-table-user"
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -16,9 +16,9 @@ import {
   AlertDialogDescription,
   AlertDialogCancel,
   AlertDialogAction,
-} from '@/components/ui/alert-dialog'
-import { toast } from 'sonner'
-import axios from 'axios'
+} from "@/components/ui/alert-dialog"
+import { toast } from "sonner"
+import axios from "axios"
 
 type Props = {
   data: User[]
@@ -31,13 +31,13 @@ export function UserTable({ data }: Props) {
 
   const handleDelete = async () => {
     const ids = selectedUsers.map((user) => user.id)
-    const token = localStorage.getItem('jwt_token')
-  
+    const token = localStorage.getItem("jwt_token")
+
     if (!token) {
-      toast.error('Token não encontrado. Faça login novamente.')
+      toast.error("Token não encontrado. Faça login novamente.")
       return
     }
-  
+
     try {
       await Promise.all(
         ids.map((id) =>
@@ -48,23 +48,23 @@ export function UserTable({ data }: Props) {
           })
         )
       )
-  
-      toast.success('Usuário(s) removido(s) com sucesso!')
-  
+
+      toast.success("Usuário(s) removido(s) com sucesso!")
+
       // Aguarda 1 segundo para exibir o toast antes do reload
       setTimeout(() => {
         window.location.reload()
       }, 1000)
     } catch (error) {
-      toast.error('Erro ao remover usuário(s).')
+      toast.error("Erro ao remover usuário(s).")
       console.error(error)
     }
   }
-  
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Button variant="default" onClick={() => router.push('/users/new')}>
+        <Button variant="default" onClick={() => router.push("/users/new")}>
           + Novo Usuário
         </Button>
 

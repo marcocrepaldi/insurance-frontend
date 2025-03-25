@@ -23,7 +23,7 @@ export default function Navbar() {
       <Button variant="ghost" className="md:hidden">
         <Menu className="w-6 h-6" />
       </Button>
-      <h1 className="text-lg font-semibold text-foreground">Navbar</h1>
+      <h1 className="text-lg font-semibold text-foreground"></h1>
       <div className="flex items-center gap-4 pr-4">
         <ThemeSwitcher />
         <ThemeToggle />

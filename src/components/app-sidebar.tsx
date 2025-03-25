@@ -46,8 +46,8 @@ const data = {
       icon: LayoutDashboardIcon,
     },
     {
-      title: "Lifecycle",
-      url: "/brokers",
+      title: "Clientes",
+      url: "/client",
       icon: ListIcon,
     },
     {
@@ -76,6 +76,11 @@ const data = {
     {
       title: "Usuários",
       url: "/users",
+      icon: UsersIcon,
+    },
+    {
+      title: "Clientes",
+      url: "/client",
       icon: UsersIcon,
     },
     {
