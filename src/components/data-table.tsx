@@ -106,6 +106,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 
+// Schema para as linhas da tabela
 export const schema = z.object({
   id: z.number(),
   header: z.string(),
@@ -116,12 +117,9 @@ export const schema = z.object({
   reviewer: z.string(),
 })
 
-// Create a separate component for the drag handle
+// Componente separado para o drag handle
 function DragHandle({ id }: { id: number }) {
-  const { attributes, listeners } = useSortable({
-    id,
-  })
-
+  const { attributes, listeners } = useSortable({ id })
   return (
     <Button
       {...attributes}
@@ -259,11 +257,9 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     header: "Reviewer",
     cell: ({ row }) => {
       const isAssigned = row.original.reviewer !== "Assign reviewer"
-
       if (isAssigned) {
         return row.original.reviewer
       }
-
       return (
         <>
           <Label htmlFor={`${row.original.id}-reviewer`} className="sr-only">
@@ -281,6 +277,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
               <SelectItem value="Jamik Tashpulatov">
                 Jamik Tashpulatov
               </SelectItem>
+              <SelectItem value="Emily Whalen">Emily Whalen</SelectItem>
             </SelectContent>
           </Select>
         </>
@@ -347,15 +344,13 @@ export function DataTable({
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  )
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 10,
   })
-  const sortableId = React.useId()
+  // Linha removida: const sortableId = React.useId()
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
     useSensor(TouchSensor, {}),
@@ -498,24 +493,21 @@ export function DataTable({
             modifiers={[restrictToVerticalAxis]}
             onDragEnd={handleDragEnd}
             sensors={sensors}
-            id={sortableId}
           >
             <Table>
               <TableHeader className="sticky top-0 z-10 bg-muted">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => {
-                      return (
-                        <TableHead key={header.id} colSpan={header.colSpan}>
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
-                        </TableHead>
-                      )
-                    })}
+                    {headerGroup.headers.map((header) => (
+                      <TableHead key={header.id} colSpan={header.colSpan}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    ))}
                   </TableRow>
                 ))}
               </TableHeader>

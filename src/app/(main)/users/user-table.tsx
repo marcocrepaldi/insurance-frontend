@@ -61,8 +61,6 @@ export function UserTable({ data }: Props) {
     }
   }
   
-  
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -80,7 +78,9 @@ export function UserTable({ data }: Props) {
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Tem certeza que deseja excluir?</AlertDialogTitle>
+                <AlertDialogTitle>
+                  Tem certeza que deseja excluir?
+                </AlertDialogTitle>
                 <AlertDialogDescription>
                   Essa ação não pode ser desfeita. Os usuários selecionados serão removidos
                   permanentemente do sistema.
@@ -88,17 +88,22 @@ export function UserTable({ data }: Props) {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete}>Confirmar</AlertDialogAction>
+                <AlertDialogAction onClick={handleDelete}>
+                  Confirmar
+                </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
         )}
       </div>
 
-      <DataTableUser
-        data={data}
-        onSelectedRowsChange={(rows) => setSelectedUsers(rows)}
-      />
+      {/* Envolvendo a tabela em um card temático */}
+      <div className="rounded-lg border bg-card text-card-foreground p-4 shadow-sm">
+        <DataTableUser
+          data={data}
+          onSelectedRowsChange={(rows) => setSelectedUsers(rows)}
+        />
+      </div>
     </div>
   )
 }

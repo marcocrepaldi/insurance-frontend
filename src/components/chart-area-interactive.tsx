@@ -28,6 +28,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@/components/ui/toggle-group"
+
 const chartData = [
   { date: "2024-04-01", desktop: 222, mobile: 150 },
   { date: "2024-04-02", desktop: 97, mobile: 180 },
@@ -220,12 +221,12 @@ export function ChartAreaInteractive() {
                 <stop
                   offset="5%"
                   stopColor="var(--color-desktop)"
-                  stopOpacity={1.0}
+                  stopOpacity={0.9}
                 />
                 <stop
                   offset="95%"
                   stopColor="var(--color-desktop)"
-                  stopOpacity={0.1}
+                  stopOpacity={0.05}
                 />
               </linearGradient>
               <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
@@ -237,7 +238,7 @@ export function ChartAreaInteractive() {
                 <stop
                   offset="95%"
                   stopColor="var(--color-mobile)"
-                  stopOpacity={0.1}
+                  stopOpacity={0.05}
                 />
               </linearGradient>
             </defs>

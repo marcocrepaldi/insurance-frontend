@@ -1,36 +1,47 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import axios from 'axios'
-import { toast } from 'sonner'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import axios from "axios"
+import { toast } from "sonner"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}`
 
 export default function CreateUserPage() {
   const router = useRouter()
 
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [roleId, setRoleId] = useState('')
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [roleId, setRoleId] = useState("")
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const roles = [
-    { id: 'a8c621ca-9404-4b27-a961-5a29ebf39731', name: 'Admin' },
-    { id: 'f6dde762-760b-4139-88ee-4ff73c48903b', name: 'User' },
+    { id: "a8c621ca-9404-4b27-a961-5a29ebf39731", name: "Admin" },
+    { id: "f6dde762-760b-4139-88ee-4ff73c48903b", name: "User" },
   ]
+
+  // Verifica se o token existe e, se não, define um erro de acesso
+  useEffect(() => {
+    const token = localStorage.getItem("jwt_token")
+    if (!token) {
+      setError("Acesso negado. Você não tem permissão para visualizar esta página.")
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      const token = localStorage.getItem('jwt_token')
+      const token = localStorage.getItem("jwt_token")
+      if (!token) throw new Error("Token JWT não encontrado. Faça login novamente.")
+
       await axios.post(
         `${API_BASE_URL}/auth/register`,
         {
@@ -46,14 +57,29 @@ export default function CreateUserPage() {
         }
       )
 
-      toast.success('Usuário criado com sucesso!')
-      router.push('/users')
-    } catch (error) {
-      toast.error('Erro ao criar usuário.')
+      toast.success("Usuário criado com sucesso!")
+      router.push("/users")
+    } catch (error: any) {
+      toast.error("Erro ao criar usuário.")
       console.error(error)
     } finally {
       setLoading(false)
     }
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full p-4">
+        <Card className="max-w-md w-full">
+          <CardHeader>
+            <CardTitle className="text-red-500">Acesso Negado</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">{error}</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (
@@ -106,7 +132,7 @@ export default function CreateUserPage() {
               </select>
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Criando...' : 'Criar'}
+              {loading ? "Criando..." : "Criar"}
             </Button>
           </form>
         </CardContent>

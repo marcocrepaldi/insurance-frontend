@@ -13,6 +13,7 @@ export function ThemeToggle() {
     setMounted(true)
   }, [])
 
+  // Evita renderizar enquanto o tema não for definido no client
   if (!mounted) return null
 
   const isDark = theme === "dark"
@@ -23,7 +24,7 @@ export function ThemeToggle() {
       size="icon"
       onClick={() => setTheme(isDark ? "light" : "dark")}
       aria-label="Alternar tema"
-      className="transition-all duration-300"
+      className="transition-all duration-300 relative"
     >
       <Sun
         className={`h-5 w-5 transition-all duration-300 ${

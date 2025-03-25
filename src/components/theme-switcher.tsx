@@ -14,12 +14,15 @@ export function ThemeSwitcher() {
 
   const applyTheme = (themeClass: string) => {
     setSelectedTheme(themeClass)
+    // Remove classes antigas de tema
     document.documentElement.classList.forEach((cls) => {
       if (cls.startsWith("theme-")) {
         document.documentElement.classList.remove(cls)
       }
     })
+    // Adiciona a nova classe
     document.documentElement.classList.add(themeClass)
+    // Armazena no localStorage
     localStorage.setItem("user-theme", themeClass)
   }
 
