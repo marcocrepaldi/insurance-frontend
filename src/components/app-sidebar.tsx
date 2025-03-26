@@ -51,8 +51,8 @@ const data = {
       icon: ListIcon,
     },
     {
-      title: "Analytics",
-      url: "#",
+      title: "Produdores",
+      url: "/producers",
       icon: BarChartIcon,
     },
     {
@@ -81,6 +81,11 @@ const data = {
     {
       title: "Clientes",
       url: "/client",
+      icon: UsersIcon,
+    },
+    {
+      title: "Proudores",
+      url: "/producers",
       icon: UsersIcon,
     },
     {

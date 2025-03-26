@@ -13,6 +13,7 @@ const pageTitles: Record<string, string> = {
   '/settings': 'Configurações',
   '/documents': 'Documentos',
   '/client': 'Clientes',
+  '/producers': 'Produtores',
   
   // Adicione outras rotas conforme sua necessidade
 }
