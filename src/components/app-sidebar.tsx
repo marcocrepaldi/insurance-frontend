@@ -115,19 +115,35 @@ const data = {
 }
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
+  const [isCollapsed, setIsCollapsed] = React.useState(false);
+
+  const toggleSidebar = () => {
+    setIsCollapsed((prev) => !prev);
+  };
+
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar
+      collapsible="offcanvas"
+      className={`transition-all ${isCollapsed ? "w-[60px]" : "w-[260px]"}`}
+      {...props}
+    >
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
               <Link href="/dashboard" className="flex items-center gap-2">
                 <ArrowUpCircleIcon className="h-5 w-5" />
-                <span className="text-base font-semibold">Harper System</span>
+                {!isCollapsed && <span className="text-base font-semibold">Harper System</span>}
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+        <button
+          onClick={toggleSidebar}
+          className="mt-4 p-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+        >
+          {isCollapsed ? "Expandir" : "Colapsar"}
+        </button>
       </SidebarHeader>
 
       <SidebarContent>

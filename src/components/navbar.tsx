@@ -6,6 +6,9 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { useRouter } from "next/navigation";
 
+interface NavbarProps {
+  isSidebarCollapsed: boolean;
+}
 export default function Navbar() {
   const router = useRouter();
 
