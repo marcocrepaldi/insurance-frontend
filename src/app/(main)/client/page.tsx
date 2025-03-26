@@ -19,11 +19,6 @@ export default function PageClient() {
         <div className="flex flex-1 flex-col bg-background text-foreground">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-
-              <h1 className="px-4 lg:px-6 text-2xl font-bold text-primary">
-                Clientes
-              </h1>
-
               {/* Cartões de resumo (pode receber props no futuro) */}
               <SectionCards />
 

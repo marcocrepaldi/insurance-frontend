@@ -7,17 +7,17 @@ import { AppSidebar } from '@/components/app-sidebar'
 import { SiteHeader } from '@/components/site-header'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/sonner'
-import { useInitTheme } from '@/lib/use-init-theme' // Novo hook para aplicar theme-* + modo dark
+import { useInitTheme } from '@/lib/use-init-theme'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isAuthPage = pathname === '/' || pathname === '/login'
 
-  useInitTheme() // ✅ Aplica o tema salvo em localStorage automaticamente
+  useInitTheme()
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="flex min-h-screen bg-background text-foreground">
+    <html lang="en" className="min-h-screen" suppressHydrationWarning>
+      <body className="flex min-h-screen bg-background text-foreground antialiased transition-colors duration-300">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <SidebarProvider>
             <Toaster />

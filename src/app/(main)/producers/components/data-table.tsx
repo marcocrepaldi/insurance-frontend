@@ -24,7 +24,7 @@ import {
   ColumnDef,
   ColumnFiltersState,
   Row,
-  SortingState, 
+  SortingState,
   VisibilityState,
   flexRender,
   getCoreRowModel,
@@ -106,9 +106,9 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 
-// Schema para as linhas da tabela
+// Schema atualizado com id: string
 export const schema = z.object({
-  id: z.number(),
+  id: z.string(),
   header: z.string(),
   type: z.string(),
   status: z.string(),
@@ -117,8 +117,7 @@ export const schema = z.object({
   reviewer: z.string(),
 })
 
-// Componente separado para o drag handle
-function DragHandle({ id }: { id: number }) {
+function DragHandle({ id }: { id: string }) {
   const { attributes, listeners } = useSortable({ id })
   return (
     <Button
@@ -133,7 +132,7 @@ function DragHandle({ id }: { id: number }) {
     </Button>
   )
 }
-
+// restante do código permanece igual
 const columns: ColumnDef<z.infer<typeof schema>>[] = [
   {
     id: "drag",
