@@ -8,13 +8,17 @@ import {
   ClipboardListIcon,
   DatabaseIcon,
   FileIcon,
-  FolderIcon,
   HelpCircleIcon,
   LayoutDashboardIcon,
   ListIcon,
   SearchIcon,
   SettingsIcon,
   UsersIcon,
+  Building2Icon,
+  FileTextIcon,
+  FileSearchIcon,
+  ShieldCheckIcon,
+  ShieldHalfIcon,
 } from "lucide-react"
 
 import { NavDocuments } from "@/components/nav-documents"
@@ -35,10 +39,11 @@ import {
 
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+    name: "Harper",
+    email: "admin@harper.com",
+    avatar: "/avatars/default.jpg",
   },
+
   navMain: [
     {
       title: "Dashboard",
@@ -51,80 +56,85 @@ const data = {
       icon: ListIcon,
     },
     {
-      title: "Produdores",
+      title: "Produtores",
       url: "/producers",
       icon: BarChartIcon,
     },
     {
-      title: "Projects",
-      url: "#",
-      icon: FolderIcon,
+      title: "Seguradoras",
+      url: "/insurers",
+      icon: Building2Icon,
     },
     {
-      title: "Team",
-      url: "#",
-      icon: UsersIcon,
+      title: "Apólices",
+      url: "/policies",
+      icon: FileTextIcon,
+    },
+    {
+      title: "Sinistros",
+      url: "/claims",
+      icon: ShieldHalfIcon,
+    },
+    {
+      title: "Cotações",
+      url: "/quotes",
+      icon: FileSearchIcon,
     },
   ],
 
   navSecondary: [
-    {
-      title: "Configurações",
-      url: "#",
-      icon: SettingsIcon,
-    },
     {
       title: "Usuários",
       url: "/users",
       icon: UsersIcon,
     },
     {
-      title: "Clientes",
-      url: "/client",
-      icon: UsersIcon,
+      title: "Configurações",
+      url: "/settings",
+      icon: SettingsIcon,
     },
     {
-      title: "Proudores",
-      url: "/producers",
-      icon: UsersIcon,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: HelpCircleIcon,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: SearchIcon,
-    },
-  ],
-  
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: DatabaseIcon,
-    },
-    {
-      name: "Reports",
-      url: "#",
+      title: "Personalização",
+      url: "/customize",
       icon: ClipboardListIcon,
     },
     {
-      name: "Word Assistant",
-      url: "#",
+      title: "Ajuda",
+      url: "/help",
+      icon: HelpCircleIcon,
+    },
+    {
+      title: "Pesquisar",
+      url: "/search",
+      icon: SearchIcon,
+    },
+  ],
+
+  documents: [
+    {
+      name: "Biblioteca de Dados",
+      url: "/data-library",
+      icon: DatabaseIcon,
+    },
+    {
+      name: "Relatórios",
+      url: "/reports",
       icon: FileIcon,
+    },
+    {
+      name: "Assistente de Documentos",
+      url: "/doc-assistant",
+      icon: ShieldCheckIcon,
     },
   ],
 }
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
-  const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const [isCollapsed, setIsCollapsed] = React.useState(false)
 
   const toggleSidebar = () => {
-    setIsCollapsed((prev) => !prev);
-  };
+    setIsCollapsed((prev) => !prev)
+  }
 
   return (
     <Sidebar
