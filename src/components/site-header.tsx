@@ -4,7 +4,6 @@ import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { ThemeSwitcher } from "@/components/theme-switcher"
 import { usePathname, useRouter } from 'next/navigation'
 
 const pageTitles: Record<string, string> = {
@@ -44,7 +43,6 @@ export function SiteHeader() {
           <h1 className="text-base font-medium">{title}</h1>
         </div>
         <div className="flex items-center gap-4">
-          <ThemeSwitcher />
           <ThemeToggle />
           <Button variant="outline" onClick={handleLogout}>
             Sair
