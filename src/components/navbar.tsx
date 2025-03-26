@@ -9,7 +9,8 @@ import { useRouter } from "next/navigation";
 interface NavbarProps {
   isSidebarCollapsed: boolean;
 }
-export default function Navbar() {
+
+export default function Navbar({ isSidebarCollapsed }: NavbarProps) {
   const router = useRouter();
 
   const handleLogout = () => {
@@ -22,7 +23,11 @@ export default function Navbar() {
   };
 
   return (
-    <header className="fixed top-0 left-0 z-50 h-16 w-full bg-card shadow-md p-4 flex items-center justify-between transition-all lg:left-[260px] lg:w-[calc(100%-260px)]">
+    <header
+      className={`fixed top-0 z-50 h-16 w-full bg-card shadow-md p-4 flex items-center justify-between transition-all ${
+        isSidebarCollapsed ? "left-[60px] lg:w-[calc(100%-60px)]" : "left-[260px] lg:w-[calc(100%-260px)]"
+      }`}
+    >
       <Button variant="ghost" className="md:hidden">
         <Menu className="w-6 h-6" />
       </Button>

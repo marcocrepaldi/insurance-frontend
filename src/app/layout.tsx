@@ -28,7 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <>
                 <AppSidebar variant="inset" />
                 <SidebarInset>
-                  <Navbar />
+                  <Navbar isSidebarCollapsed={false} />
                   <div className="relative z-40 mt-16">
                     <SiteHeader />
                   </div>
