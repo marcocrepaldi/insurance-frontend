@@ -2,7 +2,10 @@
 
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
-import { usePathname } from 'next/navigation'
+import { Button } from "@/components/ui/button"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { ThemeSwitcher } from "@/components/theme-switcher"
+import { usePathname, useRouter } from 'next/navigation'
 
 const pageTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
@@ -16,19 +19,36 @@ const pageTitles: Record<string, string> = {
 
 export function SiteHeader() {
   const pathname = usePathname()
+  const router = useRouter()
 
   // Define um título padrão caso a URL não seja encontrada no objeto
   const title = pageTitles[pathname] || 'Página'
 
+  const handleLogout = () => {
+    // Limpa o token JWT e outros dados de sessão, se necessário
+    localStorage.removeItem("jwt_token")
+    // Redireciona para a página de login
+    router.push("/login")
+  }
+
   return (
     <header className="group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 flex h-12 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear">
-      <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
-        <SidebarTrigger className="-ml-1" />
-        <Separator
-          orientation="vertical"
-          className="mx-2 data-[orientation=vertical]:h-4"
-        />
-        <h1 className="text-base font-medium">{title}</h1>
+      <div className="flex w-full items-center justify-between px-4 lg:px-6">
+        <div className="flex items-center gap-2">
+          <SidebarTrigger className="-ml-1" />
+          <Separator
+            orientation="vertical"
+            className="mx-2 data-[orientation=vertical]:h-4"
+          />
+          <h1 className="text-base font-medium">{title}</h1>
+        </div>
+        <div className="flex items-center gap-4">
+          <ThemeSwitcher />
+          <ThemeToggle />
+          <Button variant="outline" onClick={handleLogout}>
+            Sair
+          </Button>
+        </div>
       </div>
     </header>
   )
