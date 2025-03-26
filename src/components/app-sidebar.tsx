@@ -130,11 +130,7 @@ const data = {
 }
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
-  const [isCollapsed, setIsCollapsed] = React.useState(false)
-
-  const toggleSidebar = () => {
-    setIsCollapsed((prev) => !prev)
-  }
+  const [isCollapsed] = React.useState(false) // ✅ apenas isCollapsed usado
 
   return (
     <Sidebar
