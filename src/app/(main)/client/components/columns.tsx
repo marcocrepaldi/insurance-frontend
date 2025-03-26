@@ -22,7 +22,6 @@ export const DragHandle = ({ id }: { id: string }) => {
   )
 }
 
-
 export const columns: ColumnDef<Client>[] = [
   {
     id: "drag",
@@ -42,12 +41,33 @@ export const columns: ColumnDef<Client>[] = [
     cell: ({ row }) => formatDocument(row.original.document),
   },
   {
-    accessorKey: "email",
-    header: "Email",
+    accessorKey: "birthDate",
+    header: "Nascimento",
+    cell: ({ row }) => formatDate(row.original.birthDate),
   },
   {
     accessorKey: "phone",
     header: "Telefone",
+  },
+  {
+    accessorKey: "email",
+    header: "Email",
+  },
+  {
+    accessorKey: "street",
+    header: "Rua",
+  },
+  {
+    accessorKey: "number",
+    header: "Número",
+  },
+  {
+    accessorKey: "complement",
+    header: "Complemento",
+  },
+  {
+    accessorKey: "neighborhood",
+    header: "Bairro",
   },
   {
     accessorKey: "city",
@@ -55,9 +75,8 @@ export const columns: ColumnDef<Client>[] = [
     cell: ({ row }) => `${row.original.city} - ${row.original.state}`,
   },
   {
-    accessorKey: "birthDate",
-    header: "Nascimento",
-    cell: ({ row }) => formatDate(row.original.birthDate),
+    accessorKey: "zipCode",
+    header: "CEP",
   },
   {
     accessorKey: "isActive",
@@ -68,6 +87,16 @@ export const columns: ColumnDef<Client>[] = [
       ) : (
         <Badge variant="outline" className="text-muted-foreground">Inativo</Badge>
       ),
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Criado em",
+    cell: ({ row }) => formatDate(row.original.createdAt),
+  },
+  {
+    accessorKey: "updatedAt",
+    header: "Atualizado em",
+    cell: ({ row }) => formatDate(row.original.updatedAt),
   },
   {
     id: "actions",
