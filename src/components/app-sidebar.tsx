@@ -153,12 +153,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        <button
-          onClick={toggleSidebar}
-          className="mt-4 p-2 text-sm font-medium text-muted-foreground hover:text-foreground"
-        >
-          {isCollapsed ? "Expandir" : "Colapsar"}
-        </button>
       </SidebarHeader>
 
       <SidebarContent>
