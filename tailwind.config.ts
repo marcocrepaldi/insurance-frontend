@@ -1,30 +1,40 @@
 import type { Config } from 'tailwindcss'
 
+type OpacityFnParams = {
+  opacityVariable?: string
+  opacityValue?: string
+}
+
+const withOpacity = (variableName: string) => ({ opacityVariable, opacityValue }: OpacityFnParams) => {
+  if (opacityValue !== undefined) {
+    return `hsl(var(${variableName}) / ${opacityValue})`
+  }
+  return `hsl(var(${variableName}) / var(${opacityVariable}, 1))`
+}
+
 const config: Config = {
   darkMode: 'class',
-  content: [
-    './src/**/*.{ts,tsx,js,jsx}',
-  ],
+  content: ['./src/**/*.{ts,tsx,js,jsx}'],
   theme: {
     extend: {
       colors: {
-        primary: 'hsl(var(--primary))',
-        'primary-foreground': 'hsl(var(--primary-foreground))',
-        ring: 'hsl(var(--ring))',
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
-        muted: 'hsl(var(--muted))',
-        'muted-foreground': 'hsl(var(--muted-foreground))',
-        accent: 'hsl(var(--accent))',
-        'accent-foreground': 'hsl(var(--accent-foreground))',
-        destructive: 'hsl(var(--destructive))',
-        'destructive-foreground': 'hsl(var(--destructive-foreground))',
-        border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
-        card: 'hsl(var(--card))',
-        'card-foreground': 'hsl(var(--card-foreground))',
-        popover: 'hsl(var(--popover))',
-        'popover-foreground': 'hsl(var(--popover-foreground))',
+        primary: withOpacity('--primary'),
+        'primary-foreground': withOpacity('--primary-foreground'),
+        ring: withOpacity('--ring'),
+        background: withOpacity('--background'),
+        foreground: withOpacity('--foreground'),
+        muted: withOpacity('--muted'),
+        'muted-foreground': withOpacity('--muted-foreground'),
+        accent: withOpacity('--accent'),
+        'accent-foreground': withOpacity('--accent-foreground'),
+        destructive: withOpacity('--destructive'),
+        'destructive-foreground': withOpacity('--destructive-foreground'),
+        border: withOpacity('--border'),
+        input: withOpacity('--input'),
+        card: withOpacity('--card'),
+        'card-foreground': withOpacity('--card-foreground'),
+        popover: withOpacity('--popover'),
+        'popover-foreground': withOpacity('--popover-foreground'),
       },
       borderRadius: {
         lg: 'var(--radius)',

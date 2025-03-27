@@ -29,14 +29,6 @@ import {
 import { Sun, Moon, Info } from 'lucide-react'
 import clsx from 'clsx'
 
-/*************  ✨ Codeium Command ⭐  *************/
-/**
- * Maps a color name to its corresponding HSL value.
- * If the color is not found in the map, returns 'transparent'.
- * @param {string} color - The color name
- * @returns {string} The HSL value of the color
- */
-/******  ff02bd3f-9f2b-4933-81d6-7163dbf83739  *******/
 function getHSL(color: string) {
   const map: Record<string, string> = {
     zinc: 'hsl(240, 5%, 20%)',
@@ -158,6 +150,8 @@ export function ThemeCustomizer() {
                 <Button variant="default">Primary</Button>
                 <Button variant="outline">Outline</Button>
                 <Button variant="destructive">Destructive</Button>
+                
+
                 <Badge>Badge</Badge>
                 <Switch />
                 <Tooltip>
@@ -196,8 +190,12 @@ export function ThemeCustomizer() {
               </Alert>
             </CardContent>
           </Card>
+          <Button variant="default">Teste Tema</Button>
+          <Button variant="default">Botão que muda</Button>
+
         </div>
       </div>
     </TooltipProvider>
+    
   )
 }
