@@ -65,22 +65,30 @@ export const columns: ColumnDef<TableRow>[] = [
     header: "Ações",
     cell: ({ row }) => {
       const task = row.original as TableRow
+      const isDisabled = task.status !== TaskStatus.WAITING_APPROVAL
 
       return (
         <div className="flex gap-2">
           <Button
             variant="outline"
             size="icon"
-            onClick={() => updateTaskStatus(task.id, TaskStatus.APPROVED)}
-            disabled={task.status !== TaskStatus.WAITING_APPROVAL}
+            onClick={() => {
+              console.log("✅ Aprovando tarefa:", task.id)
+              updateTaskStatus(task.id, TaskStatus.APPROVED)
+            }}
+            disabled={isDisabled}
           >
             <Check className="w-4 h-4 text-green-500" />
           </Button>
+
           <Button
             variant="outline"
             size="icon"
-            onClick={() => updateTaskStatus(task.id, TaskStatus.REJECTED)}
-            disabled={task.status !== TaskStatus.WAITING_APPROVAL}
+            onClick={() => {
+              console.log("❌ Rejeitando tarefa:", task.id)
+              updateTaskStatus(task.id, TaskStatus.REJECTED)
+            }}
+            disabled={isDisabled}
           >
             <X className="w-4 h-4 text-red-500" />
           </Button>
