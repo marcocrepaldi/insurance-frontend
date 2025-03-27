@@ -3,7 +3,7 @@
 import { useTasks } from "./use-tasks"
 import { TaskStatus } from "./types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, Check, Clock, ShieldCheck, ShieldX } from "lucide-react"
+import { Check, Clock, ShieldCheck, ShieldX } from "lucide-react"
 
 const statusConfig: {
   status: TaskStatus
