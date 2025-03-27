@@ -1,8 +1,7 @@
 "use client"
 
-import * as React from "react"
+import Link from "next/link"
 import { LucideIcon } from "lucide-react"
-
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -13,25 +12,24 @@ import {
 
 export function NavSecondary({
   items,
-  ...props
 }: {
   items: {
     title: string
     url: string
-    icon: LucideIcon
+    icon?: LucideIcon
   }[]
-} & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
+}) {
   return (
-    <SidebarGroup {...props}>
+    <SidebarGroup>
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild>
-                <a href={item.url}>
-                  <item.icon />
+              <SidebarMenuButton asChild tooltip={item.title}>
+                <Link href={item.url} className="flex items-center gap-2">
+                  {item.icon && <item.icon className="w-5 h-5" />}
                   <span>{item.title}</span>
-                </a>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

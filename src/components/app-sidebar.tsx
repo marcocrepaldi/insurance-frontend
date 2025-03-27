@@ -44,43 +44,50 @@ const data = {
     avatar: "/avatars/default.jpg",
   },
 
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: LayoutDashboardIcon,
-    },
-    {
-      title: "Clientes",
-      url: "/client",
-      icon: ListIcon,
-    },
-    {
-      title: "Produtores",
-      url: "/producers",
-      icon: BarChartIcon,
-    },
-    {
-      title: "Seguradoras",
-      url: "/insurers",
-      icon: Building2Icon,
-    },
-    {
-      title: "Apólices",
-      url: "/policies",
-      icon: FileTextIcon,
-    },
-    {
-      title: "Sinistros",
-      url: "/claims",
-      icon: ShieldHalfIcon,
-    },
-    {
-      title: "Cotações",
-      url: "/quotes",
-      icon: FileSearchIcon,
-    },
-  ],
+// Mesma base anterior, só incluímos o item no navMain:
+navMain: [
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: LayoutDashboardIcon,
+  },
+  {
+    title: "Clientes",
+    url: "/client",
+    icon: ListIcon,
+  },
+  {
+    title: "Produtores",
+    url: "/producers",
+    icon: BarChartIcon,
+  },
+  {
+    title: "Seguradoras",
+    url: "/insurers",
+    icon: Building2Icon,
+  },
+  {
+    title: "Apólices",
+    url: "/policies",
+    icon: FileTextIcon,
+  },
+  {
+    title: "Sinistros",
+    url: "/claims",
+    icon: ShieldHalfIcon,
+  },
+  {
+    title: "Cotações",
+    url: "/quotes",
+    icon: FileSearchIcon,
+  },
+  {
+    title: "Tarefas",
+    url: "/tasks",
+    icon: ClipboardListIcon, // ou um ícone melhor se preferir
+  },
+],
+
 
   navSecondary: [
     {
