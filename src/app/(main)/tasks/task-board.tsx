@@ -7,6 +7,7 @@ import { mapTaskToTable } from "./mapper"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import { TaskForm } from "./task-form"
+import { SectionCards } from "./section-cards"
 
 export function TaskBoard() {
   const { tasks, isLoading } = useTasks()
@@ -31,6 +32,7 @@ export function TaskBoard() {
     return (
       <div className="space-y-4">
         <Skeleton className="h-10 w-40" />
+        <Skeleton className="h-24 w-full" />
         <Skeleton className="h-10 w-full" />
         <Skeleton className="h-72 w-full" />
       </div>
@@ -43,6 +45,8 @@ export function TaskBoard() {
         <h2 className="text-2xl font-bold">Minhas Tarefas</h2>
         <TaskForm />
       </div>
+
+      <SectionCards />
 
       <Tabs defaultValue="ALL" className="space-y-4">
         <TabsList>
