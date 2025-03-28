@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useTaskDetails } from "../../use-task-details"
-import { useTaskHistory } from "../../use-task-history"
+import { useUsers } from "../../use-users"
 import TaskHistory from "./TaskHistory"
 import { TaskComments } from "../../components/TaskComments"
 import { Separator } from "@/components/ui/separator"
@@ -35,13 +35,13 @@ export default function TaskDetailsPage() {
   const { id } = useParams()
   const router = useRouter()
   const { task, isLoading } = useTaskDetails(id as string)
-  useTaskHistory(id as string) // ✅ usado indiretamente via <TaskHistory />
+  const { users } = useUsers()
 
   const [updatingStatus, setUpdatingStatus] = useState(false)
+  const [updatingUser, setUpdatingUser] = useState(false)
 
   const handleStatusChange = async (newStatus: TaskStatus) => {
     if (!task || newStatus === task.status) return
-
     const token = localStorage.getItem("jwt_token")
     if (!token) {
       toast.error("Token JWT não encontrado")
@@ -61,9 +61,7 @@ export default function TaskDetailsPage() {
           body: JSON.stringify({ status: newStatus }),
         }
       )
-
       if (!res.ok) throw new Error("Erro ao atualizar status")
-
       toast.success("Status atualizado com sucesso")
       mutate(`/api/tasks/${task.id}`)
       mutate("/api/tasks")
@@ -71,6 +69,38 @@ export default function TaskDetailsPage() {
       toast.error("Erro ao atualizar status")
     } finally {
       setUpdatingStatus(false)
+    }
+  }
+
+  const handleUserTransfer = async (newUserId: string) => {
+    if (!task || task.assignedTo?.id === newUserId) return
+    const token = localStorage.getItem("jwt_token")
+    if (!token) {
+      toast.error("Token JWT não encontrado")
+      return
+    }
+
+    setUpdatingUser(true)
+    try {
+      const res = await fetch(
+        `https://insurance-api-production-55fa.up.railway.app/api/tasks/${task.id}/assign`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ userId: newUserId }),
+        }
+      )
+      if (!res.ok) throw new Error("Erro ao transferir tarefa")
+      toast.success("Tarefa transferida com sucesso")
+      mutate(`/api/tasks/${task.id}`)
+      mutate("/api/tasks")
+    } catch {
+      toast.error("Erro ao transferir tarefa")
+    } finally {
+      setUpdatingUser(false)
     }
   }
 
@@ -124,6 +154,27 @@ export default function TaskDetailsPage() {
         </div>
       </div>
 
+      {/* 👤 Transferência de tarefa */}
+      <div className="max-w-xs">
+        <label className="text-sm text-muted-foreground">Responsável</label>
+        <Select
+          value={task.assignedTo?.id}
+          onValueChange={handleUserTransfer}
+          disabled={updatingUser}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Selecionar usuário" />
+          </SelectTrigger>
+          <SelectContent>
+            {users.map((user) => (
+              <SelectItem key={user.id} value={user.id}>
+                {user.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {task.status === TaskStatus.PENDING && (
         <Button onClick={handleQuickAction} variant="default" size="sm">
           <Play className="w-4 h-4 mr-2" /> Iniciar Tarefa
@@ -131,12 +182,7 @@ export default function TaskDetailsPage() {
       )}
 
       {task.status === TaskStatus.IN_PROGRESS && (
-        <Button
-          onClick={handleQuickAction}
-          variant="default"
-          size="sm"
-          className="bg-green-600 hover:bg-green-700 text-white"
-        >
+        <Button onClick={handleQuickAction} variant="default" size="sm" className="bg-green-600 hover:bg-green-700 text-white">
           <CheckCircle className="w-4 h-4 mr-2" /> Marcar como Concluída
         </Button>
       )}
