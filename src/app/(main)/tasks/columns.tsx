@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge"
 import { mapTaskToTable } from "./mapper"
 import { TaskStatus } from "./types"
 import { TaskActionsCell } from "./components/TaskActionsCell"
+import { TaskRowMenu } from "./components/TaskRowMenu"
 
 type TableRow = ReturnType<typeof mapTaskToTable>
 
@@ -39,5 +40,10 @@ export const columns: ColumnDef<TableRow>[] = [
     id: "actions",
     header: "Ações",
     cell: ({ row }) => <TaskActionsCell taskId={row.original.id} />,
+  },
+  {
+    id: "menu",
+    header: "",
+    cell: ({ row }) => <TaskRowMenu taskId={row.original.id} />,
   },
 ]
