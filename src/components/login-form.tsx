@@ -27,27 +27,27 @@ export function LoginForm({
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-  
+
     try {
       const response = await axios.post(
-        'https://insurance-api-production-55fa.up.railway.app/api/auth/login',
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://insurance-api-production-55fa.up.railway.app/api'}/auth/login`,
         { email, password }
       )
-  
-      const token = response.data.accessToken
-      const user = response.data.user
-  
-      // Salvando no localStorage
-      localStorage.setItem('jwt_token', token)
-      localStorage.setItem('user', JSON.stringify(user)) // ✅ salva o usuário
-  
+
+      const { accessToken, refreshToken, user } = response.data
+
+      // Salva no localStorage
+      localStorage.setItem('jwt_token', accessToken)
+      localStorage.setItem('refresh_token', refreshToken)
+      localStorage.setItem('user', JSON.stringify(user))
+
       toast.success('Login bem-sucedido!')
       router.push('/dashboard')
     } catch (error: any) {
       const message =
         error.response?.data?.message ||
         'Falha no login. Verifique suas credenciais.'
-  
+
       toast.error(
         typeof message === 'string' ? message : message.join(', ')
       )
@@ -56,81 +56,62 @@ export function LoginForm({
       setLoading(false)
     }
   }
-  
-  
 
   return (
     <div className={className} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Welcome back</CardTitle>
+          <CardTitle className="text-xl">Bem-vindo de volta</CardTitle>
           <CardDescription>
-            Login with your Apple or Google account
+            Faça login com seu e-mail e senha
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin}>
             <div className="grid gap-6">
-              <div className="flex flex-col gap-4">
-                <Button variant="outline" className="w-full">
-                  Login with Apple
-                </Button>
-                <Button variant="outline" className="w-full">
-                  Login with Google
-                </Button>
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="m@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
               </div>
-              <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
-                <span className="relative z-10 bg-background px-2 text-muted-foreground">
-                  Or continue with
-                </span>
+              <div className="grid gap-2">
+                <Label htmlFor="password">Senha</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
               </div>
-              <div className="grid gap-6">
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="m@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <div className="flex items-center">
-                    <Label htmlFor="password">Password</Label>
-                    <a
-                      href="#"
-                      className="ml-auto text-sm underline-offset-4 hover:underline"
-                    >
-                      Forgot your password?
-                    </a>
-                  </div>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Carregando...' : 'Login'}
-                </Button>
-              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Carregando...' : 'Login'}
+              </Button>
               <div className="text-center text-sm">
-                Don&apos;t have an account?{' '}
+                Ainda não tem uma conta?{' '}
                 <a href="#" className="underline underline-offset-4">
-                  Sign up
+                  Cadastre-se
                 </a>
               </div>
             </div>
           </form>
         </CardContent>
       </Card>
-      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{' '}
-        and <a href="#">Privacy Policy</a>.
+      <div className="text-center text-xs text-muted-foreground mt-2">
+        Ao continuar, você concorda com nossos{' '}
+        <a href="#" className="underline">
+          Termos de uso
+        </a>{' '}
+        e{' '}
+        <a href="#" className="underline">
+          Política de privacidade
+        </a>.
       </div>
     </div>
   )
