@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import { Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -23,6 +24,7 @@ export function LoginForm({
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,7 +38,6 @@ export function LoginForm({
 
       const { accessToken, refreshToken, user } = response.data
 
-      // Salva no localStorage
       localStorage.setItem('jwt_token', accessToken)
       localStorage.setItem('refresh_token', refreshToken)
       localStorage.setItem('user', JSON.stringify(user))
@@ -47,10 +48,7 @@ export function LoginForm({
       const message =
         error.response?.data?.message ||
         'Falha no login. Verifique suas credenciais.'
-
-      toast.error(
-        typeof message === 'string' ? message : message.join(', ')
-      )
+      toast.error(typeof message === 'string' ? message : message.join(', '))
       console.error('Erro no login:', error)
     } finally {
       setLoading(false)
@@ -82,13 +80,28 @@ export function LoginForm({
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="password">Senha</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute inset-y-0 right-2 flex items-center text-muted-foreground"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? 'Carregando...' : 'Login'}
