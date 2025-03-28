@@ -35,17 +35,11 @@ export function LoginForm({
       )
   
       const token = response.data.accessToken
-      const user = response.data.user // 👈 importante: esse `user` deve vir da API
+      const user = response.data.user
   
+      // Salvando no localStorage
       localStorage.setItem('jwt_token', token)
-  
-      // Salvando o usuário com id e nome no localStorage
-      if (user?.id && user?.name) {
-        localStorage.setItem('user', JSON.stringify({ id: user.id, name: user.name }))
-        console.log('[Login] Usuário salvo:', { id: user.id, name: user.name })
-      } else {
-        console.warn('[Login] Dados de usuário ausentes na resposta da API')
-      }
+      localStorage.setItem('user', JSON.stringify(user)) // ✅ salva o usuário
   
       toast.success('Login bem-sucedido!')
       router.push('/dashboard')
@@ -54,12 +48,15 @@ export function LoginForm({
         error.response?.data?.message ||
         'Falha no login. Verifique suas credenciais.'
   
-      toast.error(typeof message === 'string' ? message : message.join(', '))
+      toast.error(
+        typeof message === 'string' ? message : message.join(', ')
+      )
       console.error('Erro no login:', error)
     } finally {
       setLoading(false)
     }
   }
+  
   
 
   return (
