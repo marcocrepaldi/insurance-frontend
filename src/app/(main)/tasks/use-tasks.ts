@@ -1,4 +1,3 @@
-// src/app/(app)/tasks/use-tasks.ts
 "use client"
 
 import { useEffect, useState } from "react"
@@ -19,27 +18,19 @@ const fetcher = async (url: string): Promise<Task[]> => {
     },
   })
 
-  if (res.status === 401) {
-    throw new Error("Não autorizado. Verifique o token.")
-  }
-
   if (!res.ok) {
     throw new Error("Erro ao buscar tarefas.")
   }
 
   const data = await res.json()
-  const validated = data.map((item: any) => taskSchema.parse(item))
-  return validated
+  return data.map((item: any) => taskSchema.parse(item))
 }
 
 export function useTasks() {
   const [shouldFetch, setShouldFetch] = useState(false)
 
   useEffect(() => {
-    const token = localStorage.getItem("jwt_token")
-    if (token) {
-      setShouldFetch(true)
-    }
+    if (localStorage.getItem("jwt_token")) setShouldFetch(true)
   }, [])
 
   const { data, error, isValidating, mutate } = useSWR(
