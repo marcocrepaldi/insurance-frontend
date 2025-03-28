@@ -25,11 +25,6 @@ interface TaskDetailsProps {
 export default function TaskDetails({ taskId }: TaskDetailsProps) {
   const { task, isLoading, isError } = useTaskDetails(taskId)
 
-  const userId =
-    typeof window !== "undefined"
-      ? localStorage.getItem("userId") || ""
-      : ""
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-10">
@@ -99,7 +94,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
       </Card>
 
       {/* 💬 Comentários */}
-      <TaskComments taskId={taskId} userId={userId} />
+      <TaskComments taskId={taskId} />
     </div>
   )
 }

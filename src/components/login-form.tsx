@@ -27,31 +27,40 @@ export function LoginForm({
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-
+  
     try {
       const response = await axios.post(
         'https://insurance-api-production-55fa.up.railway.app/api/auth/login',
         { email, password }
       )
-
+  
       const token = response.data.accessToken
+      const user = response.data.user // 👈 importante: esse `user` deve vir da API
+  
       localStorage.setItem('jwt_token', token)
-
+  
+      // Salvando o usuário com id e nome no localStorage
+      if (user?.id && user?.name) {
+        localStorage.setItem('user', JSON.stringify({ id: user.id, name: user.name }))
+        console.log('[Login] Usuário salvo:', { id: user.id, name: user.name })
+      } else {
+        console.warn('[Login] Dados de usuário ausentes na resposta da API')
+      }
+  
       toast.success('Login bem-sucedido!')
       router.push('/dashboard')
     } catch (error: any) {
       const message =
         error.response?.data?.message ||
         'Falha no login. Verifique suas credenciais.'
-
-      toast.error(
-        typeof message === 'string' ? message : message.join(', ')
-      )
+  
+      toast.error(typeof message === 'string' ? message : message.join(', '))
       console.error('Erro no login:', error)
     } finally {
       setLoading(false)
     }
   }
+  
 
   return (
     <div className={className} {...props}>

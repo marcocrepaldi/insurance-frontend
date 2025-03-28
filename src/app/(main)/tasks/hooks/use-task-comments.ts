@@ -3,6 +3,7 @@
 import useSWR from 'swr'
 import { useState } from 'react'
 import { fetcherWithToken } from '../../../../lib/fetcherWithToken'
+import { useAuth } from '../hooks/use-auth'
 
 export interface TaskComment {
   id: string
@@ -16,12 +17,14 @@ export interface TaskComment {
 
 interface UseTaskCommentsProps {
   taskId: string
-  userId: string
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://insurance-api-production-55fa.up.railway.app/api'
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  'https://insurance-api-production-55fa.up.railway.app/api'
 
-export function useTaskComments({ taskId, userId }: UseTaskCommentsProps) {
+export function useTaskComments({ taskId }: UseTaskCommentsProps) {
+  const { userId } = useAuth() // Agora usa o hook global
   const {
     data: comments,
     error,
@@ -36,7 +39,16 @@ export function useTaskComments({ taskId, userId }: UseTaskCommentsProps) {
   const [isPosting, setIsPosting] = useState(false)
 
   const postComment = async (comment: string) => {
-    if (!taskId || !userId || !comment.trim()) return
+    if (!taskId || !userId || !comment.trim()) {
+      console.warn('[useTaskComments] Comentário não enviado – dados ausentes:', {
+        taskId,
+        userId,
+        comment,
+      })
+      return
+    }
+
+    console.log('[useTaskComments] Enviando comentário:', { taskId, userId, comment })
 
     setIsPosting(true)
 
@@ -45,12 +57,12 @@ export function useTaskComments({ taskId, userId }: UseTaskCommentsProps) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('jwt_token')}`, // ✅ corrigido aqui
+          Authorization: `Bearer ${localStorage.getItem('jwt_token')}`,
         },
         body: JSON.stringify({ comment, userId }),
       })
 
-      await mutate() // Atualiza os comentários
+      await mutate()
     } catch (err) {
       console.error('[useTaskComments] Erro ao postar comentário', err)
     } finally {

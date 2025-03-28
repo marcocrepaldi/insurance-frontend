@@ -10,20 +10,21 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
 interface TaskCommentsProps {
   taskId: string
-  userId: string
 }
 
-export function TaskComments({ taskId, userId }: TaskCommentsProps) {
+export function TaskComments({ taskId }: TaskCommentsProps) {
   const [input, setInput] = useState('')
   const {
     comments,
     isLoading,
     isPosting,
     postComment,
-  } = useTaskComments({ taskId, userId })
+    error,
+  } = useTaskComments({ taskId })
 
   const handleSubmit = async () => {
     if (!input.trim()) return
+    console.log('[TaskComments] Enviando comentário:', input)
     await postComment(input.trim())
     setInput('')
   }
@@ -71,6 +72,12 @@ export function TaskComments({ taskId, userId }: TaskCommentsProps) {
           {isPosting ? 'Enviando...' : 'Enviar comentário'}
         </Button>
       </div>
+
+      {error && (
+        <div className="text-sm text-red-500 pt-2">
+          Erro ao carregar comentários. Verifique o console.
+        </div>
+      )}
     </div>
   )
 }
