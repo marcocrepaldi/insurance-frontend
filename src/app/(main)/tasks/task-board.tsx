@@ -8,8 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import { TaskForm } from "./task-form"
 import { SectionCards } from "./section-cards"
+import { useAuth } from "../tasks/hooks/use-auth"
 
 export function TaskBoard() {
+  const { user } = useAuth()
   const { tasks, isLoading } = useTasks()
 
   const mapped = tasks.map(mapTaskToTable)
@@ -42,7 +44,9 @@ export function TaskBoard() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Minhas Tarefas</h2>
+        <h2 className="text-2xl font-bold">
+        {user?.role === "Admin" ? "Todas as Tarefas" : "Minhas Tarefas"}
+        </h2>
         <TaskForm />
       </div>
 
