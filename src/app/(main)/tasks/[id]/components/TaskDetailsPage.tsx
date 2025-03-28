@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useTaskDetails } from "../../use-task-details"
 import { useUsers } from "../../use-users"
+import { useAuth } from "../../hooks/use-auth"
 import TaskHistory from "./TaskHistory"
 import { TaskComments } from "../../components/TaskComments"
 import { Separator } from "@/components/ui/separator"
@@ -14,6 +15,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
 import { mutate } from "swr"
 import { TASK_STATUS_LABELS } from "../../constants"
@@ -34,14 +46,17 @@ const TASK_STATUS_COLORS: Record<TaskStatus, string> = {
 export default function TaskDetailsPage() {
   const { id } = useParams()
   const router = useRouter()
+  const { user } = useAuth()
   const { task, isLoading } = useTaskDetails(id as string)
   const { users } = useUsers()
 
   const [updatingStatus, setUpdatingStatus] = useState(false)
   const [updatingUser, setUpdatingUser] = useState(false)
+  const [pendingStatus, setPendingStatus] = useState<TaskStatus | null>(null)
+  const [pendingUser, setPendingUser] = useState<string | null>(null)
 
-  const handleStatusChange = async (newStatus: TaskStatus) => {
-    if (!task || newStatus === task.status) return
+  const confirmStatusChange = async () => {
+    if (!task || !pendingStatus || pendingStatus === task.status) return
     const token = localStorage.getItem("jwt_token")
     if (!token) {
       toast.error("Token JWT não encontrado")
@@ -58,7 +73,7 @@ export default function TaskDetailsPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ status: newStatus }),
+          body: JSON.stringify({ status: pendingStatus }),
         }
       )
       if (!res.ok) throw new Error("Erro ao atualizar status")
@@ -69,11 +84,12 @@ export default function TaskDetailsPage() {
       toast.error("Erro ao atualizar status")
     } finally {
       setUpdatingStatus(false)
+      setPendingStatus(null)
     }
   }
 
-  const handleUserTransfer = async (newUserId: string) => {
-    if (!task || task.assignedTo?.id === newUserId) return
+  const confirmUserTransfer = async () => {
+    if (!task || !pendingUser || task.assignedTo?.id === pendingUser) return
     const token = localStorage.getItem("jwt_token")
     if (!token) {
       toast.error("Token JWT não encontrado")
@@ -90,7 +106,7 @@ export default function TaskDetailsPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ userId: newUserId }),
+          body: JSON.stringify({ userId: pendingUser }),
         }
       )
       if (!res.ok) throw new Error("Erro ao transferir tarefa")
@@ -101,15 +117,16 @@ export default function TaskDetailsPage() {
       toast.error("Erro ao transferir tarefa")
     } finally {
       setUpdatingUser(false)
+      setPendingUser(null)
     }
   }
 
   const handleQuickAction = () => {
     if (!task) return
     if (task.status === TaskStatus.PENDING) {
-      handleStatusChange(TaskStatus.IN_PROGRESS)
+      setPendingStatus(TaskStatus.IN_PROGRESS)
     } else if (task.status === TaskStatus.IN_PROGRESS) {
-      handleStatusChange(TaskStatus.COMPLETED)
+      setPendingStatus(TaskStatus.COMPLETED)
     }
   }
 
@@ -135,44 +152,80 @@ export default function TaskDetailsPage() {
             {TASK_STATUS_LABELS[task.status]}
           </Badge>
 
-          <Select
-            value={task.status}
-            onValueChange={handleStatusChange}
-            disabled={updatingStatus}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.values(TaskStatus).map((status) => (
-                <SelectItem key={status} value={status}>
-                  {TASK_STATUS_LABELS[status]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Select
+                value={task.status}
+                onValueChange={(status) => setPendingStatus(status as TaskStatus)}
+                disabled={updatingStatus}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.values(TaskStatus).map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {TASK_STATUS_LABELS[status]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirmar alteração</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Tem certeza que deseja alterar o status da tarefa?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={confirmStatusChange}>
+                  Confirmar
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 
       {/* 👤 Transferência de tarefa */}
       <div className="max-w-xs">
         <label className="text-sm text-muted-foreground">Responsável</label>
-        <Select
-          value={task.assignedTo?.id}
-          onValueChange={handleUserTransfer}
-          disabled={updatingUser}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Selecionar usuário" />
-          </SelectTrigger>
-          <SelectContent>
-            {users.map((user) => (
-              <SelectItem key={user.id} value={user.id}>
-                {user.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Select
+              value={task.assignedTo?.id}
+              onValueChange={(val) => setPendingUser(val)}
+              disabled={updatingUser}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecionar usuário" />
+              </SelectTrigger>
+              <SelectContent>
+                {users.map((user) => (
+                  <SelectItem key={user.id} value={user.id}>
+                    {user.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Confirmar transferência</AlertDialogTitle>
+              <AlertDialogDescription>
+                Deseja transferir a responsabilidade desta tarefa?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmUserTransfer}>
+                Transferir
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       {task.status === TaskStatus.PENDING && (
@@ -182,7 +235,12 @@ export default function TaskDetailsPage() {
       )}
 
       {task.status === TaskStatus.IN_PROGRESS && (
-        <Button onClick={handleQuickAction} variant="default" size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+        <Button
+          onClick={handleQuickAction}
+          variant="default"
+          size="sm"
+          className="bg-green-600 hover:bg-green-700 text-white"
+        >
           <CheckCircle className="w-4 h-4 mr-2" /> Marcar como Concluída
         </Button>
       )}

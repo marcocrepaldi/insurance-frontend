@@ -1,39 +1,50 @@
-'use client'
+"use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react"
 
-interface AuthUser {
+export type Role = "Admin" | "User" | string
+
+export interface AuthUser {
   id: string
   name: string
+  email: string
+  role: Role
   [key: string]: any
 }
 
 export function useAuth() {
   const [user, setUser] = useState<AuthUser | null>(null)
+  const [token, setToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user')
+    try {
+      const storedUser = localStorage.getItem("user")
+      const storedToken = localStorage.getItem("jwt_token")
 
-    if (storedUser) {
-      try {
+      if (storedUser && storedToken) {
         const parsedUser = JSON.parse(storedUser)
         setUser(parsedUser)
-        console.log('[useAuth] Usuário carregado:', parsedUser)
-      } catch (error) {
-        console.error('[useAuth] Erro ao parsear user do localStorage:', error)
+        setToken(storedToken)
+        console.log("[useAuth] Usuário carregado:", parsedUser)
+      } else {
+        console.warn("[useAuth] Usuário ou token não encontrados.")
       }
-    } else {
-      console.warn('[useAuth] Nenhum usuário encontrado no localStorage.')
+    } catch (error) {
+      console.error("[useAuth] Erro ao carregar autenticação:", error)
+    } finally {
+      setIsLoading(false)
     }
-
-    setIsLoading(false)
   }, [])
+
+  const isAdmin = user?.role === "Admin"
 
   return {
     user,
     userId: user?.id ?? null,
+    token,
+    isAdmin,
+    isAuthenticated: !!user && !!token,
     isLoading,
-    isAuthenticated: !!user,
   }
 }
