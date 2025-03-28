@@ -11,7 +11,9 @@ export default function TaskDetailsPage() {
 
   return (
     <div className="container space-y-4 py-10">
-      {tab === "history" ? <TaskHistory taskId={id as string} /> : <TaskDetails taskId={id as string} />}
+      {tab === "history"
+        ? <TaskHistory taskId={id as string} />
+        : <TaskDetails taskId={id as string} />}
     </div>
   )
 }

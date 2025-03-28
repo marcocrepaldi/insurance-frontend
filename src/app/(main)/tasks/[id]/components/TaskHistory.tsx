@@ -45,7 +45,9 @@ export default function TaskHistory({ taskId }: TaskHistoryProps) {
 
             {entry.from && entry.to && (
               <div className="text-sm text-muted-foreground">
-                Alterado de <Badge variant="secondary">{entry.from}</Badge> para <Badge variant="secondary">{entry.to}</Badge>
+                Alterado de{" "}
+                <Badge variant="secondary">{entry.from}</Badge> para{" "}
+                <Badge variant="secondary">{entry.to}</Badge>
               </div>
             )}
 

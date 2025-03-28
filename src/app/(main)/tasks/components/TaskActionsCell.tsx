@@ -2,49 +2,53 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { toast } from "sonner"
-import { Check, X, Loader2 } from "lucide-react"
+import { Check, X } from "lucide-react"
 import { updateTaskStatus } from "../actions"
 import { TaskStatus } from "../types"
+import { toast } from "sonner"
 
 interface TaskActionsCellProps {
   taskId: string
+  status: TaskStatus
 }
 
-export function TaskActionsCell({ taskId }: TaskActionsCellProps) {
-  const [loading, setLoading] = useState(false)
+export function TaskActionsCell({ taskId, status }: TaskActionsCellProps) {
+  const [isUpdating, setIsUpdating] = useState(false)
 
-  const handleClick = async (status: TaskStatus) => {
-    setLoading(true)
-    toast.info(`Enviando status: ${status}`)
-    try {
-      await updateTaskStatus(taskId, status)
-      toast.success(`Status atualizado para: ${status}`)
-    } catch (error: any) {
-      toast.error(`Erro ao atualizar: ${error.message}`)
-    } finally {
-      setLoading(false)
-    }
+  const handleApprove = async () => {
+    setIsUpdating(true)
+    await updateTaskStatus(taskId, TaskStatus.APPROVED)
+    toast.success("Tarefa aprovada com sucesso!")
+    setIsUpdating(false)
   }
+
+  const handleReject = async () => {
+    setIsUpdating(true)
+    await updateTaskStatus(taskId, TaskStatus.REJECTED)
+    toast.success("Tarefa rejeitada com sucesso!")
+    setIsUpdating(false)
+  }
+
+  const isDisabled = status !== TaskStatus.WAITING_APPROVAL || isUpdating
 
   return (
     <div className="flex gap-2">
       <Button
         variant="outline"
         size="icon"
-        disabled={loading}
-        onClick={() => handleClick(TaskStatus.APPROVED)}
+        onClick={handleApprove}
+        disabled={isDisabled}
       >
-        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 text-green-500" />}
+        <Check className="w-4 h-4 text-green-500" />
       </Button>
 
       <Button
         variant="outline"
         size="icon"
-        disabled={loading}
-        onClick={() => handleClick(TaskStatus.REJECTED)}
+        onClick={handleReject}
+        disabled={isDisabled}
       >
-        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4 text-red-500" />}
+        <X className="w-4 h-4 text-red-500" />
       </Button>
     </div>
   )

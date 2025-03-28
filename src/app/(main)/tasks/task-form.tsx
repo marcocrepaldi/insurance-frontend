@@ -110,18 +110,19 @@ export function TaskForm() {
                 <SelectValue placeholder="Selecione um usuário" />
               </SelectTrigger>
               <SelectContent>
-                {loadingUsers ? (
-                  <SelectItem value="" disabled>Carregando usuários...</SelectItem>
-                ) : users.length === 0 ? (
-                  <SelectItem value="" disabled>Nenhum usuário encontrado</SelectItem>
-                ) : (
-                  users.map((user) => (
-                    <SelectItem key={user.id} value={user.id}>
-                      {user.name} ({user.email})
-                    </SelectItem>
-                  ))
-                )}
+                  {loadingUsers ? (
+                    <SelectItem value="__loading__" disabled>Carregando usuários...</SelectItem>
+                  ) : users.length === 0 ? (
+                    <SelectItem value="__none__" disabled>Nenhum usuário encontrado</SelectItem>
+                  ) : (
+                    users.map((user) => (
+                      <SelectItem key={user.id} value={user.id}>
+                        {user.name} ({user.email})
+                      </SelectItem>
+                    ))
+                  )}
               </SelectContent>
+
             </Select>
           </div>
 

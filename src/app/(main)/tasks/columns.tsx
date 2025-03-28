@@ -39,7 +39,12 @@ export const columns: ColumnDef<TableRow>[] = [
   {
     id: "actions",
     header: "Ações",
-    cell: ({ row }) => <TaskActionsCell taskId={row.original.id} />,
+    cell: ({ row }) => (
+      <TaskActionsCell
+        taskId={row.original.id}
+        status={row.original.status}
+      />
+    ),
   },
   {
     id: "menu",
