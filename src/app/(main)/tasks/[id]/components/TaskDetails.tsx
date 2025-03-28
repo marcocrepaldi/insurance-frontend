@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useTaskDetails } from "../../use-task-details"
 import {
   Loader2,
@@ -7,6 +8,7 @@ import {
   User,
   Tag,
   Info,
+  ArrowLeft,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -14,7 +16,10 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
 import { format } from "date-fns"
 import { TaskComments } from "../../components/TaskComments"
 
@@ -48,35 +53,42 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
 
   return (
     <div className="space-y-6">
-      <Card className="p-4">
+      {/* 🔙 Botão de voltar */}
+      <Button asChild variant="ghost" className="flex gap-2 items-center">
+        <Link href="/tasks">
+          <ArrowLeft className="w-4 h-4" />
+          Voltar para Tarefas
+        </Link>
+      </Button>
+
+      <Card>
         <CardHeader>
           <CardTitle className="text-2xl">{task.title}</CardTitle>
+          <CardDescription className="text-muted-foreground">
+            {task.description ?? "Sem descrição adicional."}
+          </CardDescription>
         </CardHeader>
 
-        <CardContent className="space-y-4">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Info className="w-5 h-5" />
-            <p>{task.description ?? "Sem descrição adicional."}</p>
+        <Separator className="mb-2" />
+
+        <CardContent className="space-y-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <Tag className="w-4 h-4" />
+            <span className="font-medium">
+              {task.label ?? "Sem categoria"}
+            </span>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
-            {task.label && (
-              <Badge variant="secondary">
-                <Tag className="w-4 h-4 mr-2" />
-                {task.label}
-              </Badge>
-            )}
-
-            {task.assignedTo && (
-              <Badge variant="secondary">
-                <User className="w-4 h-4 mr-2" />
-                Responsável: {task.assignedTo.name}
-              </Badge>
-            )}
+          <div className="flex items-center gap-2">
+            <User className="w-4 h-4" />
+            <span>
+              Responsável:{" "}
+              <strong>{task.assignedTo?.name || "Não definido"}</strong>
+            </span>
           </div>
 
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Calendar className="w-5 h-5" />
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
             <span>
               Criada por{" "}
               <strong>{task.createdBy?.name || "Desconhecido"}</strong> em{" "}
@@ -87,8 +99,11 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
           </div>
 
           <div className="flex items-center gap-2">
+            <Info className="w-4 h-4" />
             <span>Status:</span>
-            <Badge variant="outline">{statusFormatted}</Badge>
+            <Badge variant="outline" className="capitalize">
+              {statusFormatted}
+            </Badge>
           </div>
         </CardContent>
       </Card>
