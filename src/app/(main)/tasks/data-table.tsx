@@ -8,7 +8,8 @@ import {
 } from "@tanstack/react-table"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { Search } from "lucide-react"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -20,25 +21,36 @@ export function DataTable<TData, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   const [filter, setFilter] = useState("")
+  const [debouncedFilter, setDebouncedFilter] = useState("")
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedFilter(filter)
+    }, 300)
+    return () => clearTimeout(handler)
+  }, [filter])
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     state: {
-      globalFilter: filter,
+      globalFilter: debouncedFilter,
     },
     onGlobalFilterChange: setFilter,
   })
 
   return (
     <div className="space-y-4">
-      <Input
-        placeholder="Filtrar tarefas..."
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
-        className="w-full md:w-1/3"
-      />
+      <div className="relative w-full md:w-1/3">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+        <Input
+          placeholder="Filtrar tarefas..."
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className="pl-9"
+        />
+      </div>
 
       <div className="rounded-md border">
         <Table>

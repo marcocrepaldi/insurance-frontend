@@ -1,4 +1,4 @@
-import { TaskStatus } from "./types"
+import { TaskStatus } from "../../tasks/types"
 import { toast } from "sonner"
 import { mutate } from "swr"
 
@@ -26,8 +26,7 @@ export async function updateTaskStatus(id: string, status: TaskStatus) {
     }
 
     toast.success("Tarefa atualizada com sucesso!")
-
-    mutate(() => true)
+    mutate(() => true) // revalida todas as chaves SWR
   } catch (error: any) {
     console.error("Erro na atualização:", error)
     toast.error(error.message || "Erro ao atualizar tarefa.")

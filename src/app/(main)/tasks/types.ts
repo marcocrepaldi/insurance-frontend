@@ -13,6 +13,7 @@ export type User = {
     WAITING_APPROVAL = "WAITING_APPROVAL",
     APPROVED = "APPROVED",
     REJECTED = "REJECTED",
+    COMPLETED = "COMPLETED", // <-- adicione isso
   }
   
   export type TaskLabel = 'BUG' | 'FEATURE' | 'URGENT' | 'IMPROVEMENT' | null

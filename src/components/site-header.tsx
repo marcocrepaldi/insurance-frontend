@@ -13,6 +13,10 @@ const pageTitles: Record<string, string> = {
   '/documents': 'Documentos',
   '/client': 'Clientes',
   '/producers': 'Produtores',
+  '/tasks': 'Tarefas',
+  '/tasks/[id]': 'Detalhes da Tarefa',
+  '/tasks/[id]/history': 'Histórico da Tarefa',
+  '/tasks/[id]/comments': 'Comentários da Tarefa',
   
   // Adicione outras rotas conforme sua necessidade
 }

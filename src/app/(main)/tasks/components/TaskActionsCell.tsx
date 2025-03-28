@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Check, X } from "lucide-react"
-import { updateTaskStatus } from "../actions"
+import { updateTaskStatus } from "../../tasks/update-task-status"
 import { TaskStatus } from "../types"
 import { toast } from "sonner"
 
