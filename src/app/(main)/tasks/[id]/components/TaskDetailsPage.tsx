@@ -4,7 +4,6 @@ import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useTaskDetails } from "../../use-task-details"
 import { useUsers } from "../../use-users"
-import { useAuth } from "../../hooks/use-auth"
 import TaskHistory from "./TaskHistory"
 import { TaskComments } from "../../components/TaskComments"
 import { Separator } from "@/components/ui/separator"
@@ -46,7 +45,6 @@ const TASK_STATUS_COLORS: Record<TaskStatus, string> = {
 export default function TaskDetailsPage() {
   const { id } = useParams()
   const router = useRouter()
-  const { user } = useAuth()
   const { task, isLoading } = useTaskDetails(id as string)
   const { users } = useUsers()
 
