@@ -77,7 +77,7 @@ navMain: [
     icon: ShieldHalfIcon,
   },
   {
-    title: "Cotações",
+    title: "Orçamento",
     url: "/quotes",
     icon: FileSearchIcon,
   },

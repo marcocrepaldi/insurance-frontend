@@ -7,14 +7,13 @@ export default function Home() {
       {/* Conteúdo principal da página */}
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <Image
-          className="dark:invert"
-          src="/next.svg"
+        className="dark:invert"
+          src="/harper.png"
           alt="Logo do Sistema para Corretores"
           width={180}
           height={38}
           priority
         />
-
         {/* Texto introdutório */}
         <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
           <li className="mb-2 tracking-[-.01em]">
