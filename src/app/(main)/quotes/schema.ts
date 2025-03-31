@@ -1,15 +1,30 @@
-// src/app/(app)/quotes/schema.ts
 import { z } from 'zod'
 
 export const quoteSchema = z.object({
   id: z.string(),
   title: z.string(),
   description: z.string().optional(),
-  stage: z.string(),
+  stage: z.enum([
+    'ABERTURA',
+    'ABORDAGEM',
+    'PROPOSTA_ENVIADA',
+    'NEGOCIACAO',
+    'APROVADA',
+    'PERDIDA',
+  ]),
   expectedPremium: z.number().nullable(),
-  client: z.object({ name: z.string() }),
-  producer: z.object({ name: z.string() }),
-  createdAt: z.string(),
+
+  client: z.object({
+    id: z.string(),
+    name: z.string(),
+  }),
+
+  producer: z.object({
+    id: z.string(),
+    name: z.string(),
+  }),
+
+  createdAt: z.string(), // ou z.coerce.date() se quiser Date
   updatedAt: z.string(),
 })
 
