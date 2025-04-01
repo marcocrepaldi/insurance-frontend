@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 
@@ -23,6 +23,16 @@ export function useAuth() {
   const [token, setToken] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+
+  const logout = useCallback(() => {
+    localStorage.removeItem('jwt_token')
+    localStorage.removeItem('refresh_token')
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    setUser(null)
+    setToken(null)
+    router.push('/login')
+  }, [router])
 
   useEffect(() => {
     const storedToken =
@@ -58,17 +68,7 @@ export function useAuth() {
       .finally(() => {
         setLoading(false)
       })
-  }, [])
-
-  const logout = () => {
-    localStorage.removeItem('jwt_token')
-    localStorage.removeItem('refresh_token')
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    setUser(null)
-    setToken(null)
-    router.push('/login')
-  }
+  }, [logout])
 
   return {
     user,

@@ -1,4 +1,3 @@
-// src/app/(main)/quotes/components/upload-proposal-dialog.tsx
 'use client'
 
 import { useState } from 'react'
@@ -24,6 +23,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL
 export function UploadProposalDialog({ quoteId }: UploadProposalProps) {
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
+  const [open, setOpen] = useState(false)
   const { token } = useAuth()
 
   const handleUpload = async () => {
@@ -35,7 +35,7 @@ export function UploadProposalDialog({ quoteId }: UploadProposalProps) {
     const formData = new FormData()
     formData.append('file', file)
     formData.append('quoteId', quoteId)
-    formData.append('insurerName', 'Seguradora Exemplo') // ⚠️ futuramente substituir por select
+    formData.append('insurerName', 'Seguradora Exemplo') // ⚠️ Substituir por select depois
 
     setLoading(true)
     try {
@@ -49,7 +49,8 @@ export function UploadProposalDialog({ quoteId }: UploadProposalProps) {
 
       if (!res.ok) throw new Error()
       toast.success('Proposta enviada com sucesso!')
-      setFile(null) // limpa o estado
+      setFile(null)
+      setOpen(false) // ✅ Fecha o modal ao finalizar
     } catch {
       toast.error('Falha no envio do PDF.')
     } finally {
@@ -58,7 +59,7 @@ export function UploadProposalDialog({ quoteId }: UploadProposalProps) {
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">Enviar Proposta</Button>
       </DialogTrigger>

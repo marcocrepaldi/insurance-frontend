@@ -16,7 +16,7 @@ export default function QuotesPage() {
     if (!loading && !isAuthenticated) {
       router.push('/login')
     }
-  }, [loading, isAuthenticated])
+  }, [loading, isAuthenticated, router]) // ✅ Adicionado router como dependência
 
   if (loading) {
     return <div className="p-6">Carregando...</div>
