@@ -16,6 +16,8 @@ interface QuoteProposalsSheetProps {
   quoteId: string
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
 export function QuoteProposalsSheet({ quoteId }: QuoteProposalsSheetProps) {
   const [open, setOpen] = useState(false)
   const { proposals, isLoading } = useProposalsByQuote(quoteId)
@@ -66,7 +68,7 @@ export function QuoteProposalsSheet({ quoteId }: QuoteProposalsSheetProps) {
 
                 {proposal.pdfPath && (
                   <a
-                    href={`/${proposal.pdfPath}`}
+                    href={`${API_URL}/${proposal.pdfPath}`}
                     target="_blank"
                     className="block mt-3 text-xs text-blue-600 hover:underline"
                   >

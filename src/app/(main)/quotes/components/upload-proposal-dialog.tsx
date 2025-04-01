@@ -22,6 +22,9 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 export function UploadProposalDialog({ quoteId }: UploadProposalProps) {
   const [file, setFile] = useState<File | null>(null)
+  const [totalPremium, setTotalPremium] = useState('')
+  const [insuredAmount, setInsuredAmount] = useState('')
+  const [insurerName, setInsurerName] = useState('Seguradora Exemplo')
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
   const { token } = useAuth()
@@ -35,7 +38,9 @@ export function UploadProposalDialog({ quoteId }: UploadProposalProps) {
     const formData = new FormData()
     formData.append('file', file)
     formData.append('quoteId', quoteId)
-    formData.append('insurerName', 'Seguradora Exemplo') // ⚠️ Substituir por select depois
+    formData.append('insurerName', insurerName)
+    formData.append('totalPremium', totalPremium)
+    formData.append('insuredAmount', insuredAmount)
 
     setLoading(true)
     try {
@@ -50,7 +55,7 @@ export function UploadProposalDialog({ quoteId }: UploadProposalProps) {
       if (!res.ok) throw new Error()
       toast.success('Proposta enviada com sucesso!')
       setFile(null)
-      setOpen(false) // ✅ Fecha o modal ao finalizar
+      setOpen(false)
     } catch {
       toast.error('Falha no envio do PDF.')
     } finally {
@@ -72,6 +77,30 @@ export function UploadProposalDialog({ quoteId }: UploadProposalProps) {
           type="file"
           accept="application/pdf"
           onChange={(e) => setFile(e.target.files?.[0] || null)}
+        />
+
+        <Input
+          type="text"
+          placeholder="Nome da Seguradora"
+          className="mt-2"
+          value={insurerName}
+          onChange={(e) => setInsurerName(e.target.value)}
+        />
+
+        <Input
+          type="number"
+          placeholder="Prêmio Total"
+          className="mt-2"
+          value={totalPremium}
+          onChange={(e) => setTotalPremium(e.target.value)}
+        />
+
+        <Input
+          type="number"
+          placeholder="Valor Segurado"
+          className="mt-2"
+          value={insuredAmount}
+          onChange={(e) => setInsuredAmount(e.target.value)}
         />
 
         <DialogFooter>
