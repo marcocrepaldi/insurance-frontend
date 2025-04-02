@@ -1,34 +1,24 @@
-import useSWR from "swr"
-import { InsuranceQuote } from "@/types/insurance-quote"
+import { useState } from "react";
+import useSWR from "swr";
+import type { InsuranceQuote } from "@/types/insurance-quote";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export function useQuotes() {
-  const fetcher = async (url: string): Promise<InsuranceQuote[]> => {
-    const token = localStorage.getItem("jwt_token")
+  const { data: quotes = [], error, isValidating, mutate } = useSWR<InsuranceQuote[]>(`${API_URL}/insurance-quotes`);
+  const [localQuotes, setLocalQuotes] = useState<InsuranceQuote[]>(quotes);
 
-    const res = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-
-    if (!res.ok) throw new Error("Erro ao buscar cotações")
-    return res.json()
-  }
-
-  const { data, error, isValidating, mutate } = useSWR(
-    `${API_URL}/insurance-quotes`,
-    fetcher
-  )
-
-  const isLoading = !data && !error
+  const setQuotes = (updatedQuotes: InsuranceQuote[]) => {
+    setLocalQuotes(updatedQuotes);
+    mutate(updatedQuotes, false); // Atualiza o cache do SWR
+  };
 
   return {
-    quotes: data || [],
-    isLoading,
+    quotes: localQuotes,
+    setQuotes,
+    isLoading: !error && !quotes,
     isValidating,
     isError: !!error,
     mutate,
-  }
+  };
 }

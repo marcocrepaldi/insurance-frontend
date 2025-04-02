@@ -103,7 +103,7 @@ function DraggableRow({ row }: { row: any }) {
 }
 
 export function DataTable() {
-  const { quotes, setQuotes } = useQuotes()
+  const { quotes, setQuotes } = useQuotes() as { quotes: InsuranceQuote[]; setQuotes: (updatedQuotes: InsuranceQuote[]) => void }
   const [filter, setFilter] = useState("")
   const [debouncedFilter, setDebouncedFilter] = useState("")
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -237,12 +237,10 @@ export function DataTable() {
       return;
     }
 
-    setQuotes((prevQuotes: InsuranceQuote[]) => {
-      const oldIndex: number = prevQuotes.findIndex((quote: InsuranceQuote) => quote.id === active.id);
-      const newIndex: number = prevQuotes.findIndex((quote: InsuranceQuote) => quote.id === over.id);
+    const oldIndex: number = quotes.findIndex((quote: InsuranceQuote) => quote.id === active.id);
+    const newIndex: number = quotes.findIndex((quote: InsuranceQuote) => quote.id === over.id);
 
-      return arrayMove(prevQuotes, oldIndex, newIndex);
-    });
+    setQuotes(arrayMove(quotes, oldIndex, newIndex));
   }
 
   return (
