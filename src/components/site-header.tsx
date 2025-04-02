@@ -13,12 +13,12 @@ const pageTitles: Record<string, string> = {
   '/documents': 'Documentos',
   '/client': 'Clientes',
   '/producers': 'Produtores',
+  '/insurers': 'Seguradoras',
+  '/policies': 'Apólices',
+  'claims': 'Sinistros',
   '/tasks': 'Tarefas',
-  '/tasks/[id]': 'Detalhes da Tarefa',
-  '/tasks/[id]/history': 'Histórico da Tarefa',
-  '/tasks/[id]/comments': 'Comentários da Tarefa',
-  
-  // Adicione outras rotas conforme sua necessidade
+  '/quotes': 'Cotações',
+    // Adicione outras rotas conforme sua necessidade
 }
 
 export function SiteHeader() {

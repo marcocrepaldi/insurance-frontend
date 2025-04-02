@@ -1,36 +1,37 @@
-'use client'
+import { ChartAreaInteractive } from "./components/chart-area-interactive"
+import { DataTable } from "./components/data-table"
+import { SectionCards } from "./components/section-cards"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useAuth } from './hooks/use-auth'
+import data from "./data.json"
 
-import { SectionCards } from './section-cards'
-import { SalesBoard } from './sales-board'
-import { CreateQuoteDialog } from './components/create-quote-dialog'
-
-export default function QuotesPage() {
-  const { isAuthenticated, loading } = useAuth()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push('/login')
-    }
-  }, [loading, isAuthenticated, router]) // ✅ Adicionado router como dependência
-
-  if (loading) {
-    return <div className="p-6">Carregando...</div>
-  }
-
-  if (!isAuthenticated) {
-    return null // evita renderizar se não autenticado (durante o redirecionamento)
-  }
-
+export default function Page() {
   return (
-    <main className="p-6 space-y-6">
-      <SectionCards />
-      <SalesBoard />
-      <CreateQuoteDialog />
-    </main>
+    <SidebarProvider>
+      <SidebarInset>
+        <div className="flex flex-1 flex-col bg-background text-foreground">
+          <div className="@container/main flex flex-1 flex-col gap-2">
+            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+              {/* Cartões com estatísticas principais */}
+              <SectionCards />
+
+              {/* Gráfico interativo */}
+              <div className="px-4 lg:px-6">
+                <div className="rounded-xl border border-border bg-accent text-accent-foreground p-4 shadow-sm">
+                  <ChartAreaInteractive />
+                </div>
+              </div>
+
+              {/* Tabela de dados */}
+              <div className="px-4 lg:px-6">
+                <div className="rounded-xl border border-border bg-card text-card-foreground p-4 shadow-sm">
+                  <DataTable data={data} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   )
 }
