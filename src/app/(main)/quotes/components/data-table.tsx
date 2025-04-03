@@ -63,6 +63,7 @@ function ProposalLink({ quote }: { quote: InsuranceQuote }) {
   )
 }
 
+
 const stageColorMap: Record<string, string> = {
   ABERTURA: "bg-gray-100 text-gray-800",
   EM_ABORDAGEM: "bg-yellow-100 text-yellow-800",

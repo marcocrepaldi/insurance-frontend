@@ -1,3 +1,5 @@
+"use client"
+
 import useSWR from "swr";
 import { InsuranceQuote } from "@/types/insuranceQuotesType";
 import { fetcherWithToken } from "@/lib/fetcherWithToken";

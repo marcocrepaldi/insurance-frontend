@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
@@ -11,7 +13,7 @@ export function useAuth() {
   const router = useRouter()
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token')
+    const storedToken = localStorage.getItem('jwt_token')
     if (!storedToken || !API_URL) {
       setLoading(false)
       return
