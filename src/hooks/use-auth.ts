@@ -6,7 +6,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 export function useAuth() {
   const [user, setUser] = useState(null)
-  const [token, setToken] = useState(null)
+  const [token, setToken] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
