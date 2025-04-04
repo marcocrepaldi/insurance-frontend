@@ -79,7 +79,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-import type { tableSchema } from "../lib/mapUsersToTable"
+import type { tableSchema } from "@/lib/mapUsersToTable"
 
 const columns: ColumnDef<z.infer<typeof tableSchema>>[] = [
   {
