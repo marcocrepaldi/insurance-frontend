@@ -43,8 +43,12 @@ export const columns: ColumnDef<Client>[] = [
   {
     accessorKey: "birthDate",
     header: "Nascimento",
-    cell: ({ row }) => formatDate(row.original.birthDate),
+    cell: ({ row }) =>
+      row.original.birthDate
+        ? formatDate(row.original.birthDate)
+        : "-",
   },
+  
   {
     accessorKey: "phone",
     header: "Telefone",
