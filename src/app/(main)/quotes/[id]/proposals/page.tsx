@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation" // Usando 'usePathname' para obter a URL
-import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { SectionCards } from "@/components/section-cards"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { DataTableDemo } from "../../components/data-table-proposals"
+import { ProposalCards } from "../../components/proposal-cards"
 
 export default function Page() {
   const pathname = usePathname() // Usando 'usePathname' para obter a URL
@@ -75,11 +75,7 @@ export default function Page() {
               <SectionCards />
 
               {/* Gráfico interativo */}
-              <div className="px-4 lg:px-6">
-                <div className="rounded-xl border border-border bg-accent text-accent-foreground p-4 shadow-sm">
-                  <ChartAreaInteractive />
-                </div>
-              </div>
+              < ProposalCards data={[]}/>
 
               {/* Tabela de dados */}
               <div className="px-4 lg:px-6">

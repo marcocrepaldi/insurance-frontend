@@ -18,6 +18,7 @@ const pageTitles: Record<string, string> = {
   'claims': 'Sinistros',
   '/tasks': 'Tarefas',
   '/quotes': 'Cotações',
+  '/quotes/[id]/proposals': 'Propostas',
     // Adicione outras rotas conforme sua necessidade
 }
 
