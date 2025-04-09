@@ -1,34 +1,43 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/router"  // Para capturar o `quoteId` da URL
+import { useRouter } from "next/router"
 
 export function useProposals() {
   const router = useRouter()
-  const { quoteId } = router.query  // Obtendo o `quoteId` da URL
-  
+  const { quoteId } = router.query
+
   const [proposals, setProposals] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!quoteId) return  // Espera até que o `quoteId` esteja disponível
+    if (!quoteId || Array.isArray(quoteId)) return
 
-    // Fazer a requisição para obter as propostas associadas à cotação
+    const token = typeof window !== "undefined" ? localStorage.getItem("jwt_token") : null
+    if (!token) return
+
+    const controller = new AbortController()
+
     fetch(`https://insurance-api-production-55fa.up.railway.app/api/insurance-quotes/proposals/${quoteId}`, {
       headers: {
-        "Authorization": `Bearer ${localStorage.getItem("jwt_token")}`,  // Autenticação com JWT
+        "Authorization": `Bearer ${token}`,
       },
+      signal: controller.signal,
     })
-      .then((response) => response.json())
-      .then((data) => {
-        setProposals(data)
-        setLoading(false)
+      .then((res) => {
+        if (!res.ok) throw new Error("Erro ao buscar propostas")
+        return res.json()
       })
-      .catch((error) => {
-        console.error("Erro ao carregar as propostas:", error)
-        setLoading(false)
+      .then((data) => setProposals(data))
+      .catch((err) => {
+        if (err.name !== "AbortError") {
+          console.error("Erro ao carregar as propostas:", err)
+        }
       })
-  }, [quoteId])  // O efeito é executado quando o `quoteId` muda
+      .finally(() => setLoading(false))
+
+    return () => controller.abort()
+  }, [quoteId])
 
   return { proposals, loading }
 }
