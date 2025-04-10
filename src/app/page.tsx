@@ -1,13 +1,43 @@
-import Image from "next/image";
-import Link from "next/link";
+'use client'
+
+import { useEffect } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+
+// Declaração global para evitar erro de tipo
+declare global {
+  interface Window {
+    watsonAssistantChatOptions: any
+  }
+}
 
 export default function Home() {
+  useEffect(() => {
+    window.watsonAssistantChatOptions = {
+      integrationID: 'a0346238-e28e-44ee-a827-29b527691003',
+      region: 'aws-us-east-1',
+      serviceInstanceID: '20250410-1255-4344-209b-05295b3890e4',
+      onLoad: async (instance: any) => {
+        await instance.render()
+      },
+    }
+
+    setTimeout(() => {
+      const script = document.createElement('script')
+      script.src =
+        'https://web-chat.global.assistant.watson.appdomain.cloud/versions/' +
+        (window.watsonAssistantChatOptions.clientVersion || 'latest') +
+        '/WatsonAssistantChatEntry.js'
+      document.head.appendChild(script)
+    }, 0)
+  }, [])
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       {/* Conteúdo principal da página */}
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <Image
-        className="dark:invert"
+          className="dark:invert"
           src="/harper.png"
           alt="Logo do Sistema para Corretores"
           width={180}
@@ -84,5 +114,5 @@ export default function Home() {
         </Link>
       </footer>
     </div>
-  );
+  )
 }
