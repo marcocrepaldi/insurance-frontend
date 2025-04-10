@@ -10,6 +10,24 @@ export const quoteStageEnum = z.enum([
   "CANCELADA",
 ])
 
+export const coverageSchema = z.object({
+  name: z.string(),
+  value: z.number(),
+  deductible: z.string().optional(),
+})
+
+export const proposalSchema = z.object({
+  id: z.string(),
+  insurerName: z.string(),
+  totalPremium: z.number(),
+  insuredAmount: z.number(),
+  observations: z.string().nullable(),
+  pdfPath: z.string().nullable(),
+  coverages: z.array(coverageSchema).optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+})
+
 export const insuranceQuoteSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -23,9 +41,7 @@ export const insuranceQuoteSchema = z.object({
   suggestedProducts: z.array(z.string()).optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
-  // Campos futuros opcionais:
-  // wonReason: z.string().nullable().optional(),
-  // lostReason: z.string().nullable().optional(),
+  proposals: z.array(proposalSchema).optional(),
 })
 
 export type InsuranceQuote = z.infer<typeof insuranceQuoteSchema>

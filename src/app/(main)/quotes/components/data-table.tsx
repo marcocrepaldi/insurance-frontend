@@ -41,6 +41,7 @@ import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { SlidersHorizontal } from "lucide-react"
 import { DataTablePagination } from "./data-table-pagionation"
+import { CreateProposalDialog } from "../components/create-proposal-dialog"
 
 function DragHandle({ id }: { id: string }) {
   const { attributes, listeners } = useSortable({ id })
@@ -57,14 +58,46 @@ function DragHandle({ id }: { id: string }) {
   )
 }
 
-function ProposalLink({ quote }: { quote: InsuranceQuote }) {
+function ProposalActions({ quote }: { quote: InsuranceQuote }) {
   const router = useRouter()
+  const hasProposals = (quote.proposals ?? []).length > 0
+
+
+  const [open, setOpen] = React.useState(false)
+
+  if (hasProposals) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => router.push(`/quotes/${quote.id}/proposals`)}
+        title="Ver propostas cadastradas"
+      >
+        Ver Propostas
+      </Button>
+    )
+  }
+
+  // Cadastrar proposta com botão visível e que abre o Dialog
   return (
-    <Button variant="outline" size="sm" onClick={() => router.push(`/quotes/${quote.id}/proposals`)}>
-      Ver Propostas
-    </Button>
+    <>
+      <Button
+        variant="default"
+        size="sm"
+        onClick={() => setOpen(true)}
+        title="Cadastrar nova proposta"
+      >
+        Cadastrar Proposta
+      </Button>
+      <CreateProposalDialog
+        open={open}
+        onOpenChange={setOpen}
+        quoteId={quote.id}
+      />
+    </>
   )
 }
+
 
 const stageColorMap: Record<string, string> = {
   ABERTURA: "bg-gray-100 text-gray-800",
@@ -110,7 +143,7 @@ const defaultColumns: ColumnDef<InsuranceQuote>[] = [
     cell: ({ row }) => row.original.expectedDecisionDate ? formatDate(row.original.expectedDecisionDate) : "—",
   },
   { accessorKey: "createdAt", header: "Criado em", cell: ({ row }) => formatDate(row.original.createdAt) },
-  { id: "actions", header: "Ações", cell: ({ row }) => <ProposalLink quote={row.original} /> },
+  { id: "actions", header: "Ações", cell: ({ row }) => <ProposalActions quote={row.original} /> },
 ]
 
 function DraggableRow({ row }: { row: Row<InsuranceQuote> }) {
