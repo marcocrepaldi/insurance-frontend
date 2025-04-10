@@ -8,7 +8,11 @@ import {
   useReactTable,
   getCoreRowModel,
   getPaginationRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
   flexRender,
+  VisibilityState,
+  SortingState,
 } from "@tanstack/react-table"
 import {
   DndContext,
@@ -33,6 +37,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { formatCurrency, formatDate } from "@/lib/formatters"
 import { InsuranceQuote } from "@/types/insuranceQuotesType"
+import { Input } from "@/components/ui/input"
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { SlidersHorizontal } from "lucide-react"
+import { DataTablePagination } from "./data-table-pagionation"
 
 function DragHandle({ id }: { id: string }) {
   const { attributes, listeners } = useSortable({ id })
@@ -51,18 +59,12 @@ function DragHandle({ id }: { id: string }) {
 
 function ProposalLink({ quote }: { quote: InsuranceQuote }) {
   const router = useRouter()
-
   return (
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={() => router.push(`/quotes/${quote.id}/proposals`)}
-    >
+    <Button variant="outline" size="sm" onClick={() => router.push(`/quotes/${quote.id}/proposals`)}>
       Ver Propostas
     </Button>
   )
 }
-
 
 const stageColorMap: Record<string, string> = {
   ABERTURA: "bg-gray-100 text-gray-800",
@@ -74,28 +76,15 @@ const stageColorMap: Record<string, string> = {
   CANCELADA: "bg-muted text-muted-foreground",
 }
 
-const columns: ColumnDef<InsuranceQuote>[] = [
+const defaultColumns: ColumnDef<InsuranceQuote>[] = [
   {
     id: "drag",
     header: () => null,
-    cell: ({ row }) => <DragHandle id={row.original.id} />,
-    size: 30,
+    cell: ({ row }) => <DragHandle id={row.original.id} />, size: 30,
   },
-  {
-    accessorKey: "title",
-    header: "Título",
-    cell: ({ row }) => (
-      <div className="font-medium">{row.original.title}</div>
-    ),
-  },
-  {
-    accessorKey: "clientName",
-    header: "Cliente",
-  },
-  {
-    accessorKey: "producerName",
-    header: "Produtor",
-  },
+  { accessorKey: "title", header: "Título", cell: ({ row }) => <div className="font-medium">{row.original.title}</div> },
+  { accessorKey: "clientName", header: "Cliente" },
+  { accessorKey: "producerName", header: "Produtor" },
   {
     accessorKey: "stage",
     header: "Status",
@@ -108,71 +97,43 @@ const columns: ColumnDef<InsuranceQuote>[] = [
   {
     accessorKey: "expectedPremium",
     header: "Prêmio Estimado",
-    cell: ({ row }) =>
-      row.original.expectedPremium !== null
-        ? formatCurrency(row.original.expectedPremium)
-        : "—",
+    cell: ({ row }) => row.original.expectedPremium !== null ? formatCurrency(row.original.expectedPremium) : "—",
   },
   {
     accessorKey: "proposalSentAt",
     header: "Data de Envio",
-    cell: ({ row }) =>
-      row.original.proposalSentAt
-        ? formatDate(row.original.proposalSentAt)
-        : "—",
+    cell: ({ row }) => row.original.proposalSentAt ? formatDate(row.original.proposalSentAt) : "—",
   },
   {
     accessorKey: "expectedDecisionDate",
     header: "Decisão Esperada",
-    cell: ({ row }) =>
-      row.original.expectedDecisionDate
-        ? formatDate(row.original.expectedDecisionDate)
-        : "—",
+    cell: ({ row }) => row.original.expectedDecisionDate ? formatDate(row.original.expectedDecisionDate) : "—",
   },
-  {
-    accessorKey: "createdAt",
-    header: "Criado em",
-    cell: ({ row }) => formatDate(row.original.createdAt),
-  },
-  {
-    id: "actions",
-    header: "Ações",
-    cell: ({ row }) => <ProposalLink quote={row.original} />,
-  },
+  { accessorKey: "createdAt", header: "Criado em", cell: ({ row }) => formatDate(row.original.createdAt) },
+  { id: "actions", header: "Ações", cell: ({ row }) => <ProposalLink quote={row.original} /> },
 ]
 
 function DraggableRow({ row }: { row: Row<InsuranceQuote> }) {
-  const { transform, transition, setNodeRef, isDragging } = useSortable({
-    id: row.original.id,
-  })
-
+  const { transform, transition, setNodeRef, isDragging } = useSortable({ id: row.original.id })
   return (
     <TableRow
       ref={setNodeRef}
       data-dragging={isDragging}
       className="data-[dragging=true]:opacity-70"
-      style={{
-        transform: CSS.Transform.toString(transform),
-        transition,
-      }}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
     >
       {row.getVisibleCells().map((cell) => (
-        <TableCell key={cell.id}>
-          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-        </TableCell>
+        <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
       ))}
     </TableRow>
   )
 }
 
-export function DataTable({
-  data,
-  isValidating,
-}: {
-  data: InsuranceQuote[]
-  isValidating?: boolean
-}) {
+export function DataTable({ data, isValidating }: { data: InsuranceQuote[]; isValidating?: boolean }) {
   const [tableData, setTableData] = React.useState<InsuranceQuote[]>(data)
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [globalFilter, setGlobalFilter] = React.useState("")
+  const [sorting, setSorting] = React.useState<SortingState>([])
 
   const sensors = useSensors(
     useSensor(MouseSensor),
@@ -182,9 +143,15 @@ export function DataTable({
 
   const table = useReactTable({
     data: tableData,
-    columns,
+    columns: defaultColumns,
+    state: { columnVisibility, globalFilter, sorting },
+    onColumnVisibilityChange: setColumnVisibility,
+    onGlobalFilterChange: setGlobalFilter,
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   })
 
   const dataIds = React.useMemo(() => tableData.map((item) => item.id), [tableData])
@@ -200,24 +167,60 @@ export function DataTable({
 
   return (
     <div className="rounded-xl border">
+      <div className="flex flex-col gap-2 border-b px-4 py-2 sm:flex-row sm:items-center sm:justify-between">
+        <Input
+          placeholder="Buscar por título ou cliente..."
+          value={globalFilter}
+          onChange={(e) => setGlobalFilter(e.target.value)}
+          className="h-8 w-full max-w-sm"
+        />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="h-8 gap-1">
+              <SlidersHorizontal className="size-4" />
+              <span className="sr-only">Exibir/ocultar colunas</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            {table.getAllLeafColumns().map((column) => {
+              const id = column.id
+              return (
+                <DropdownMenuCheckboxItem
+                  key={id}
+                  className="capitalize"
+                  checked={column.getIsVisible()}
+                  onCheckedChange={() => column.toggleVisibility()}
+                >
+                  {id === "actions" ? "Ações" : id === "drag" ? "" : column.columnDef.header as string}
+                </DropdownMenuCheckboxItem>
+              )
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
       {isValidating && (
         <div className="text-xs text-muted-foreground px-4 py-2">
           Atualizando cotações...
         </div>
       )}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={dataIds} strategy={verticalListSortingStrategy}>
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      key={header.id}
+                      className={header.column.getCanSort() ? "cursor-pointer" : undefined}
+                      onClick={header.column.getToggleSortingHandler()}
+                    >
                       {flexRender(header.column.columnDef.header, header.getContext())}
+                      {header.column.getIsSorted() === "asc"
+                        ? " ▲"
+                        : header.column.getIsSorted() === "desc"
+                        ? " ▼"
+                        : null}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -230,7 +233,7 @@ export function DataTable({
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="text-center">
+                  <TableCell colSpan={defaultColumns.length} className="text-center">
                     Nenhum resultado encontrado.
                   </TableCell>
                 </TableRow>
@@ -239,6 +242,7 @@ export function DataTable({
           </Table>
         </SortableContext>
       </DndContext>
+      <DataTablePagination table={table} className="px-4 py-2" />
     </div>
   )
 }
