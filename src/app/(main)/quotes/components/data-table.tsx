@@ -62,7 +62,6 @@ function ProposalActions({ quote }: { quote: InsuranceQuote }) {
   const router = useRouter()
   const hasProposals = (quote.proposals ?? []).length > 0
 
-
   const [open, setOpen] = React.useState(false)
 
   if (hasProposals) {
@@ -78,7 +77,6 @@ function ProposalActions({ quote }: { quote: InsuranceQuote }) {
     )
   }
 
-  // Cadastrar proposta com botão visível e que abre o Dialog
   return (
     <>
       <Button
@@ -98,6 +96,46 @@ function ProposalActions({ quote }: { quote: InsuranceQuote }) {
   )
 }
 
+const serviceTypeLabels: Record<string, string> = {
+  SEGURO_CARRO: "Seguro de Carro",
+  SEGURO_MOTO: "Seguro de Moto",
+  SEGURO_CAMINHAO: "Seguro de Caminhão",
+  SEGURO_FROTAS: "Seguro de Frotas",
+  AUTO_POR_ASSINATURA: "Auto por Assinatura",
+  AUTO_POPULAR: "Auto Popular",
+  ASSISTENCIA_24H: "Assistência 24h",
+  SEGURO_RESIDENCIAL: "Seguro Residencial",
+  SEGURO_CONDOMINIO: "Seguro Condomínio",
+  SEGURO_EMPRESARIAL: "Seguro Empresarial",
+  SEGURO_PATRIMONIAL: "Seguro Patrimonial",
+  SEGURO_EQUIPAMENTOS: "Seguro Equipamentos",
+  SEGURO_AGRICOLA: "Seguro Agrícola",
+  VIDA_INDIVIDUAL: "Vida Individual",
+  VIDA_EM_GRUPO: "Vida em Grupo",
+  ACIDENTES_PESSOAIS: "Acidentes Pessoais",
+  SEGURO_FUNERAL: "Seguro Funeral",
+  DOENCAS_GRAVES: "Doenças Graves",
+  SEGURO_PRESTAMISTA: "Seguro Prestamista",
+  VIAGEM_NACIONAL_INTERNACIONAL: "Viagem Nacional/Internacional",
+  VIAGEM_INTERCAMBIO: "Viagem Intercâmbio",
+  VIAGEM_BAGAGEM: "Viagem - Bagagem",
+  VIAGEM_COBERTURA_MEDICA: "Viagem - Cobertura Médica",
+  RC_PROFISSIONAL: "RC Profissional",
+  D_O: "D&O",
+  E_O: "E&O",
+  GARANTIA: "Garantia",
+  CYBER: "Cyber",
+  FIANCAS: "Fianças",
+  CREDITO: "Crédito",
+  RC_LIBERAIS: "RC Liberais",
+  EQUIPAMENTOS_TRABALHO: "Equipamentos de Trabalho",
+  VIDA_MEI: "Vida MEI",
+  CONSORCIO: "Consórcio",
+  PREVIDENCIA_PRIVADA: "Previdência Privada",
+  CAPITALIZACAO: "Capitalização",
+  ASSISTENCIAS_AVULSAS: "Assistências Avulsas",
+  SAUDE_ODONTO: "Saúde / Odonto",
+}
 
 const stageColorMap: Record<string, string> = {
   ABERTURA: "bg-gray-100 text-gray-800",
@@ -118,6 +156,11 @@ const defaultColumns: ColumnDef<InsuranceQuote>[] = [
   { accessorKey: "title", header: "Título", cell: ({ row }) => <div className="font-medium">{row.original.title}</div> },
   { accessorKey: "clientName", header: "Cliente" },
   { accessorKey: "producerName", header: "Produtor" },
+  {
+    accessorKey: "serviceType",
+    header: "Tipo de Serviço",
+    cell: ({ row }) => serviceTypeLabels[row.original.serviceType] || row.original.serviceType,
+  },
   {
     accessorKey: "stage",
     header: "Status",

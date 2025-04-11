@@ -13,8 +13,8 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import {
-  ChartConfig,
   ChartContainer,
+  ChartConfig,
 } from "@/components/ui/chart"
 import {
   Select,
@@ -28,23 +28,13 @@ import {
   ToggleGroupItem,
 } from "@/components/ui/toggle-group"
 
-const formatLabel = (key: string) => {
-  return key
-    .toLowerCase()
-    .split("_")
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ")
-}
-
 export function ChartAreaInteractive() {
   const isMobile = useIsMobile()
   const [timeRange, setTimeRange] = React.useState("30d")
   const { data, isLoading } = useQuoteChartData()
 
   React.useEffect(() => {
-    if (isMobile) {
-      setTimeRange("7d")
-    }
+    if (isMobile) setTimeRange("7d")
   }, [isMobile])
 
   const filteredData = React.useMemo(() => {
@@ -59,7 +49,7 @@ export function ChartAreaInteractive() {
     return (
       <Card className="@container/card">
         <CardHeader>
-          <CardTitle>Cotações por Serviço</CardTitle>
+          <CardTitle>Cotações por Tipo de Serviço</CardTitle>
           <CardDescription>Carregando gráfico...</CardDescription>
         </CardHeader>
       </Card>
@@ -67,10 +57,10 @@ export function ChartAreaInteractive() {
   }
 
   const chartKeys = Object.keys(filteredData[0] || {}).filter(k => k !== "date")
-  const chartConfig = chartKeys.reduce((acc, key, index) => {
+  const chartConfig: ChartConfig = chartKeys.reduce((acc, key, index) => {
     acc[key] = {
-      label: formatLabel(key),
-      color: `hsl(var(--chart-${(index % 10) + 1}))`
+      label: key, // já está vindo formatado pelo hook!
+      color: `hsl(var(--chart-${(index % 10) + 1}))`,
     }
     return acc
   }, {} as ChartConfig)
@@ -84,19 +74,25 @@ export function ChartAreaInteractive() {
           <span className="@[540px]/card:hidden">Últimos {timeRange}</span>
         </CardDescription>
         <div className="absolute right-4 top-4">
-          <ToggleGroup value={timeRange} onValueChange={setTimeRange} type="single" variant="outline" className="@[767px]/card:flex hidden">
+          <ToggleGroup
+            value={timeRange}
+            onValueChange={setTimeRange}
+            type="single"
+            variant="outline"
+            className="@[767px]/card:flex hidden"
+          >
             <ToggleGroupItem value="7d" className="h-8 px-2.5">7 dias</ToggleGroupItem>
             <ToggleGroupItem value="30d" className="h-8 px-2.5">30 dias</ToggleGroupItem>
             <ToggleGroupItem value="90d" className="h-8 px-2.5">90 dias</ToggleGroupItem>
           </ToggleGroup>
           <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="@[767px]/card:hidden flex w-40" aria-label="Selecionar intervalo">
+            <SelectTrigger className="@[767px]/card:hidden flex w-40">
               <SelectValue placeholder="Intervalo" />
             </SelectTrigger>
             <SelectContent className="rounded-xl">
-              <SelectItem value="90d" className="rounded-lg">Últimos 90 dias</SelectItem>
-              <SelectItem value="30d" className="rounded-lg">Últimos 30 dias</SelectItem>
-              <SelectItem value="7d" className="rounded-lg">Últimos 7 dias</SelectItem>
+              <SelectItem value="90d">Últimos 90 dias</SelectItem>
+              <SelectItem value="30d">Últimos 30 dias</SelectItem>
+              <SelectItem value="7d">Últimos 7 dias</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -120,19 +116,27 @@ export function ChartAreaInteractive() {
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="date"
-                tickFormatter={(value) => new Date(value).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
+                tickFormatter={(value) =>
+                  new Date(value).toLocaleDateString("pt-BR", {
+                    day: "2-digit",
+                    month: "short",
+                  })
+                }
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
                 minTickGap={32}
               />
-              <YAxis domain={[0, 'dataMax + 2']} allowDecimals={false} />
+              <YAxis domain={[0, "dataMax + 2"]} allowDecimals={false} />
               <Tooltip
-                cursor={{ strokeDasharray: '3 3' }}
+                cursor={{ strokeDasharray: "3 3" }}
                 content={({ label, payload }) => (
                   <div className="rounded-md border bg-background p-2 shadow-sm">
                     <div className="mb-1 text-sm font-medium">
-                      {new Date(label as string).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
+                      {new Date(label as string).toLocaleDateString("pt-BR", {
+                        day: "2-digit",
+                        month: "short",
+                      })}
                     </div>
                     {payload?.map((entry, index) => (
                       <div key={index} className="flex items-center justify-between text-sm">
