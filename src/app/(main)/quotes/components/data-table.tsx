@@ -3,6 +3,7 @@
 import * as React from "react"
 import { useRouter } from "next/navigation"
 import {
+  ColumnDef,
   Row,
   useReactTable,
   getCoreRowModel,
@@ -30,19 +31,32 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-
 import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { formatCurrency, formatDate } from "@/lib/formatters"
-import { InsuranceQuote } from "@/types/insuranceQuotesType"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { SlidersHorizontal } from "lucide-react"
 import { DataTablePagination } from "./data-table-pagionation"
 import { CreateProposalDialog } from "./create-proposal-dialog"
 import { QuoteActionsDropdown } from "./quote-actions-dropdown"
 import { EditQuoteDialog } from "./EditQuoteDialog"
 import { toast } from "sonner"
+import { formatCurrency, formatDate } from "@/lib/formatters"
+import { InsuranceQuote } from "@/types/insuranceQuotesType"
+import { Checkbox } from "@/components/ui/checkbox"
+import { downloadCSV } from "@/lib/csv"
 
 const stageColorMap: Record<InsuranceQuote["stage"], string> = {
   ABERTURA: "bg-gray-100 text-gray-800",
@@ -80,15 +94,15 @@ function ProposalActions({ quote }: { quote: InsuranceQuote }) {
   const hasProposals = (quote.proposals ?? []).length > 0
   const [open, setOpen] = React.useState(false)
 
-  if (hasProposals) {
-    return (
-      <Button variant="outline" size="sm" onClick={() => router.push(`/quotes/${quote.id}/proposals`)}>
-        Ver Propostas
-      </Button>
-    )
-  }
-
-  return (
+  return hasProposals ? (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => router.push(`/quotes/${quote.id}/proposals`)}
+    >
+      Ver Propostas
+    </Button>
+  ) : (
     <>
       <Button variant="default" size="sm" onClick={() => setOpen(true)}>
         Cadastrar Proposta
@@ -160,83 +174,132 @@ export function DataTable({ data, isValidating }: { data: InsuranceQuote[]; isVa
   const [globalFilter, setGlobalFilter] = React.useState("")
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [editQuote, setEditQuote] = React.useState<InsuranceQuote | null>(null)
+  const [selectedRowIds, setSelectedRowIds] = React.useState<Record<string, boolean>>({})
   const router = useRouter()
 
-  const sensors = useSensors(
-    useSensor(MouseSensor),
-    useSensor(TouchSensor),
-    useSensor(KeyboardSensor)
-  )
+  const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor), useSensor(KeyboardSensor))
+
+  const handleExportCSV = () => {
+    const selectedData = tableData.filter((item) => selectedRowIds[item.id])
+    downloadCSV(selectedData, "quotes.csv", {
+      headers: {
+        title: "Título",
+        clientName: "Cliente",
+        serviceType: "Tipo de Serviço",
+        createdAt: "Criado em",
+        stage: "",
+        id: "",
+        producer: "",
+        client: "",
+        description: "",
+        expectedPremium: "",
+        proposalSentAt: "",
+        expectedDecisionDate: "",
+        updatedAt: "",
+        producerName: "",
+        proposals: ""
+      },
+      transformRow: (row) => ({
+        title: row.title,
+        clientName: row.client?.name ?? row.clientName,
+        serviceType: row.serviceType,
+        createdAt: new Date(row.createdAt).toLocaleDateString("pt-BR"),
+      }),
+    })
+  }
+  const columns: ColumnDef<InsuranceQuote>[] = [
+    {
+      id: "select",
+      header: () => (
+        <Checkbox
+          checked={Object.keys(selectedRowIds).length === tableData.length}
+          onCheckedChange={(checked) => {
+            const newState = tableData.reduce((acc, quote) => {
+              acc[quote.id] = !!checked
+              return acc
+            }, {} as Record<string, boolean>)
+            setSelectedRowIds(checked ? newState : {})
+          }}
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={!!selectedRowIds[row.original.id]}
+          onCheckedChange={(checked) => {
+            setSelectedRowIds((prev) => ({ ...prev, [row.original.id]: !!checked }))
+          }}
+        />
+      ),
+    },
+    {
+      id: "drag",
+      header: () => null,
+      cell: ({ row }) => <DragHandle id={row.original.id} />,
+    },
+    {
+      accessorKey: "title",
+      header: "Título",
+      cell: ({ row }) => <div className="font-medium">{row.original.title}</div>,
+    },
+    {
+      accessorKey: "client.name",
+      header: "Cliente",
+      cell: ({ row }) => row.original.client?.name || row.original.clientName || "—",
+    },
+    {
+      accessorKey: "producer.name",
+      header: "Produtor",
+      cell: ({ row }) => row.original.producer?.name || row.original.producerName || "—",
+    },
+    {
+      accessorKey: "serviceType",
+      header: "Tipo de Serviço",
+      cell: ({ row }) => serviceTypeLabels[row.original.serviceType] || row.original.serviceType,
+    },
+    {
+      accessorKey: "stage",
+      header: "Status",
+      cell: StageCell,
+    },
+    {
+      accessorKey: "expectedPremium",
+      header: "Prêmio Estimado",
+      cell: ({ row }) => row.original.expectedPremium !== null ? formatCurrency(row.original.expectedPremium) : "—",
+    },
+    {
+      accessorKey: "proposalSentAt",
+      header: "Data de Envio",
+      cell: ({ row }) => row.original.proposalSentAt ? formatDate(row.original.proposalSentAt) : "—",
+    },
+    {
+      accessorKey: "expectedDecisionDate",
+      header: "Decisão Esperada",
+      cell: ({ row }) => row.original.expectedDecisionDate ? formatDate(row.original.expectedDecisionDate) : "—",
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Criado em",
+      cell: ({ row }) => formatDate(row.original.createdAt),
+    },
+    {
+      id: "actions",
+      header: "Ações",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <ProposalActions quote={row.original} />
+          <QuoteActionsDropdown
+            quote={row.original}
+            onEdit={() => setEditQuote(row.original)}
+            onDeleted={() => setTableData((prev) => prev.filter((q) => q.id !== row.original.id))}
+          />
+        </div>
+      ),
+    },
+  ]
 
   const table = useReactTable({
     data: tableData,
-    columns: [
-      {
-        id: "drag",
-        header: () => null,
-        cell: ({ row }) => <DragHandle id={row.original.id} />,
-        size: 30,
-      },
-      {
-        accessorKey: "title",
-        header: "Título",
-        cell: ({ row }) => <div className="font-medium">{row.original.title}</div>,
-      },
-      {
-        accessorKey: "client.name",
-        header: "Cliente",
-        cell: ({ row }) => row.original.client?.name || row.original.clientName || "—",
-      },
-      {
-        accessorKey: "producer.name",
-        header: "Produtor",
-        cell: ({ row }) => row.original.producer?.name || row.original.producerName || "—",
-      },
-      {
-        accessorKey: "serviceType",
-        header: "Tipo de Serviço",
-        cell: ({ row }) => serviceTypeLabels[row.original.serviceType] || row.original.serviceType,
-      },
-      {
-        accessorKey: "stage",
-        header: "Status",
-        cell: StageCell,
-      },
-      {
-        accessorKey: "expectedPremium",
-        header: "Prêmio Estimado",
-        cell: ({ row }) => row.original.expectedPremium !== null ? formatCurrency(row.original.expectedPremium) : "—",
-      },
-      {
-        accessorKey: "proposalSentAt",
-        header: "Data de Envio",
-        cell: ({ row }) => row.original.proposalSentAt ? formatDate(row.original.proposalSentAt) : "—",
-      },
-      {
-        accessorKey: "expectedDecisionDate",
-        header: "Decisão Esperada",
-        cell: ({ row }) => row.original.expectedDecisionDate ? formatDate(row.original.expectedDecisionDate) : "—",
-      },
-      {
-        accessorKey: "createdAt",
-        header: "Criado em",
-        cell: ({ row }) => formatDate(row.original.createdAt),
-      },
-      {
-        id: "actions",
-        header: "Ações",
-        cell: ({ row }) => (
-          <div className="flex items-center gap-2">
-            <ProposalActions quote={row.original} />
-            <QuoteActionsDropdown
-              quote={row.original}
-              onEdit={() => setEditQuote(row.original)}
-              onDeleted={() => setTableData((prev) => prev.filter((q) => q.id !== row.original.id))}
-            />
-          </div>
-        ),
-      },
-    ],
+    columns,
     state: { columnVisibility, globalFilter, sorting },
     onColumnVisibilityChange: setColumnVisibility,
     onGlobalFilterChange: setGlobalFilter,
@@ -267,29 +330,38 @@ export function DataTable({ data, isValidating }: { data: InsuranceQuote[]; isVa
           onChange={(e) => setGlobalFilter(e.target.value)}
           className="h-8 w-full max-w-sm"
         />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="h-8 gap-1">
-              <SlidersHorizontal className="size-4" />
-              <span className="sr-only">Exibir/ocultar colunas</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            {table.getAllLeafColumns().map((column) => {
-              const id = column.id
-              return (
-                <DropdownMenuCheckboxItem
-                  key={id}
-                  className="capitalize"
-                  checked={column.getIsVisible()}
-                  onCheckedChange={() => column.toggleVisibility()}
-                >
-                  {id === "actions" ? "Ações" : id === "drag" ? "" : column.columnDef.header as string}
-                </DropdownMenuCheckboxItem>
-              )
-            })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={handleExportCSV}>
+            Exportar CSV
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-8 gap-1">
+                <SlidersHorizontal className="size-4" />
+                <span className="sr-only">Exibir/ocultar colunas</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {table.getAllLeafColumns().map((column) => {
+                const id = column.id
+                return (
+                  <DropdownMenuCheckboxItem
+                    key={id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={() => column.toggleVisibility()}
+                  >
+                    {id === "actions"
+                      ? "Ações"
+                      : id === "drag"
+                      ? ""
+                      : column.columnDef.header as string}
+                  </DropdownMenuCheckboxItem>
+                )
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       {isValidating && (
         <div className="text-xs text-muted-foreground px-4 py-2">
@@ -336,7 +408,6 @@ export function DataTable({ data, isValidating }: { data: InsuranceQuote[]; isVa
         </SortableContext>
       </DndContext>
       <DataTablePagination table={table} className="px-4 py-2" />
-
       {editQuote && (
         <EditQuoteDialog
           quote={editQuote}

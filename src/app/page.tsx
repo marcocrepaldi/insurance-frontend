@@ -4,14 +4,14 @@ import { useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 
-// Declaração global para evitar erro de tipo
+// Chatbot Watson Assistant
 declare global {
   interface Window {
     watsonAssistantChatOptions: any
   }
 }
 
-export default function Home() {
+export default function HomePage() {
   useEffect(() => {
     window.watsonAssistantChatOptions = {
       integrationID: 'a0346238-e28e-44ee-a827-29b527691003',
@@ -33,83 +33,58 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      {/* Conteúdo principal da página */}
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+    <div className="min-h-screen grid grid-rows-[auto_1fr_auto] items-center justify-items-center p-8 sm:p-20 gap-10 font-[family-name:var(--font-geist-sans)]">
+      {/* Header com logo */}
+      <header className="flex items-center justify-center">
         <Image
-          className="dark:invert"
           src="/harper.png"
           alt="Logo do Sistema para Corretores"
           width={180}
           height={38}
           priority
+          className="dark:invert"
         />
-        {/* Texto introdutório */}
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Gerencie clientes, apólices e comissões em um único lugar.
-          </li>
-          <li className="tracking-[-.01em]">
-            Plataforma intuitiva, ágil e segura para corretores.
-          </li>
-        </ol>
+      </header>
 
-        {/* Botões de ação */}
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
+      {/* Conteúdo principal */}
+      <main className="flex flex-col items-center text-center sm:text-left sm:items-start gap-8 max-w-xl">
+        <h1 className="text-2xl sm:text-3xl font-semibold leading-snug tracking-tight">
+          Tudo que o corretor precisa, em um só lugar
+        </h1>
+        <ul className="list-decimal list-inside text-muted-foreground text-sm sm:text-base font-[family-name:var(--font-geist-mono)] space-y-2">
+          <li>Gerencie clientes, apólices e comissões de forma integrada.</li>
+          <li>Plataforma ágil, segura e intuitiva para corretores modernos.</li>
+        </ul>
+
+        {/* Ações principais */}
+        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
           <Link
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
             href="/login"
+            className="rounded-full bg-foreground text-background hover:bg-[#383838] dark:hover:bg-[#ccc] transition-colors font-medium h-11 px-6 text-sm sm:text-base flex items-center justify-center"
           >
             Entrar
           </Link>
           <Link
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
             href="/sobre"
+            className="rounded-full border border-muted hover:bg-muted/30 transition-colors font-medium h-11 px-6 text-sm sm:text-base flex items-center justify-center"
           >
-            Saiba Mais
+            Saiba mais
           </Link>
         </div>
       </main>
 
-      {/* Rodapé específico desta página */}
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <Link
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="/funcionalidades"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="Icone funcionalidades"
-            width={16}
-            height={16}
-          />
+      {/* Rodapé */}
+      <footer className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
+        <Link href="/funcionalidades" className="flex items-center gap-2 hover:underline">
+          <Image src="/file.svg" alt="" width={16} height={16} aria-hidden />
           Funcionalidades
         </Link>
-        <Link
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="/precos"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Icone preços"
-            width={16}
-            height={16}
-          />
+        <Link href="/precos" className="flex items-center gap-2 hover:underline">
+          <Image src="/window.svg" alt="" width={16} height={16} aria-hidden />
           Preços
         </Link>
-        <Link
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="/contato"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Icone contato"
-            width={16}
-            height={16}
-          />
+        <Link href="/contato" className="flex items-center gap-2 hover:underline">
+          <Image src="/globe.svg" alt="" width={16} height={16} aria-hidden />
           Contato
         </Link>
       </footer>

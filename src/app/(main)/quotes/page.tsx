@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog"
 import CreateQuoteForm from "./components/create-quote-form"
 import { useState } from "react"
+import { SectionCardsQuotes } from "./components/section-cards"
 
 export default function Page() {
   const { quotes, isLoading, error } = useQuotes()
@@ -41,7 +42,13 @@ export default function Page() {
                 </Dialog>
               </div>
 
-              {/* Gráfico interativo */}
+              {/* Cards interativo */}
+              <div className="px-4 lg:px-6">
+                <div className="rounded-xl border border-border bg-accent text-accent-foreground p-4 shadow-sm">
+                <SectionCardsQuotes quotes={quotes ?? []} />
+              </div>
+
+              </div>
               <div className="px-4 lg:px-6">
                 <div className="rounded-xl border border-border bg-accent text-accent-foreground p-4 shadow-sm">
                   <ChartAreaInteractive />

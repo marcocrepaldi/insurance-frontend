@@ -1,7 +1,15 @@
-"use client"
+'use client'
 
-import { TrendingDownIcon, TrendingUpIcon } from "lucide-react"
-
+import { InsuranceQuote } from "@/types/insuranceQuotesType"
+import {
+  TrendingDownIcon,
+  ClockIcon,
+  LoaderIcon,
+  XCircleIcon,
+  HandshakeIcon,
+  SendIcon,
+  FileCheck2Icon,
+} from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import {
   Card,
@@ -10,65 +18,94 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
-export function SectionCards() {
+const stageMetadata: Record<
+  InsuranceQuote["stage"],
+  {
+    label: string
+    icon: React.ReactNode
+    color: string
+    trendText: string
+  }
+> = {
+  ABERTURA: {
+    label: "Em Aberto",
+    icon: <ClockIcon className="size-4" />,
+    color: "text-muted-foreground",
+    trendText: "Aguardando abordagem",
+  },
+  EM_ABORDAGEM: {
+    label: "Em Abordagem",
+    icon: <LoaderIcon className="size-4" />,
+    color: "text-blue-600",
+    trendText: "Contato em andamento",
+  },
+  PROPOSTA_ENVIADA: {
+    label: "Proposta Enviada",
+    icon: <SendIcon className="size-4" />,
+    color: "text-sky-600",
+    trendText: "Aguardando retorno do cliente",
+  },
+  EM_NEGOCIACAO: {
+    label: "Em Negociação",
+    icon: <HandshakeIcon className="size-4" />,
+    color: "text-orange-600",
+    trendText: "Negociação ativa",
+  },
+  APROVADA: {
+    label: "Aprovada",
+    icon: <FileCheck2Icon className="size-4" />,
+    color: "text-green-600",
+    trendText: "Cliente aprovou a proposta",
+  },
+  PERDIDA: {
+    label: "Perdida",
+    icon: <TrendingDownIcon className="size-4" />,
+    color: "text-red-600",
+    trendText: "Proposta não convertida",
+  },
+  CANCELADA: {
+    label: "Cancelada",
+    icon: <XCircleIcon className="size-4" />,
+    color: "text-muted-foreground",
+    trendText: "Cancelada pelo corretor ou cliente",
+  },
+}
+
+export function SectionCardsQuotes({ quotes }: { quotes: InsuranceQuote[] }) {
+  const grouped = quotes.reduce<Record<string, number>>((acc, quote) => {
+    acc[quote.stage] = (acc[quote.stage] || 0) + 1
+    return acc
+  }, {})
+
   return (
     <div className="@xl/main:grid-cols-2 @5xl/main:grid-cols-4 grid grid-cols-1 gap-4 px-4 lg:px-6">
-      {[
-        {
-          title: "$1,250.00",
-          description: "Total Revenue",
-          change: "+12.5%",
-          trend: "Trending up this month",
-          icon: <TrendingUpIcon className="size-4" />,
-          badgeIcon: <TrendingUpIcon className="size-3" />,
-        },
-        {
-          title: "1,234",
-          description: "New Customers",
-          change: "-20%",
-          trend: "Down 20% this period",
-          icon: <TrendingDownIcon className="size-4" />,
-          badgeIcon: <TrendingDownIcon className="size-3" />,
-        },
-        {
-          title: "45,678",
-          description: "Active Accounts",
-          change: "+12.5%",
-          trend: "Strong user retention",
-          icon: <TrendingUpIcon className="size-4" />,
-          badgeIcon: <TrendingUpIcon className="size-3" />,
-        },
-        {
-          title: "4.5%",
-          description: "Growth Rate",
-          change: "+4.5%",
-          trend: "Steady performance",
-          icon: <TrendingUpIcon className="size-4" />,
-          badgeIcon: <TrendingUpIcon className="size-3" />,
-        },
-      ].map((card, i) => (
-        <Card key={i} className="bg-card text-card-foreground border">
-          <CardHeader className="relative @container/card">
-            <CardDescription className="text-muted-foreground">
-              {card.description}
-            </CardDescription>
-            <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums text-primary">
-              {card.title}
-            </CardTitle>
-            <div className="absolute right-4 top-4">
-              <Badge
-                variant="outline"
-                className="flex gap-1 rounded-lg text-xs border-border text-foreground"
+      {Object.entries(stageMetadata).map(([key, meta]) => {
+        const count = grouped[key] || 0
+
+        return (
+          <Card key={key} className="bg-card text-card-foreground border">
+            <CardHeader className="relative @container/card">
+              <CardDescription className="text-muted-foreground">
+                {meta.label}
+              </CardDescription>
+              <CardTitle
+                className={`@[250px]/card:text-3xl text-2xl font-semibold tabular-nums ${meta.color}`}
               >
-                {card.badgeIcon}
-                {card.change}
-              </Badge>
-            </div>
-          </CardHeader>
-
-
-        </Card>
-      ))}
+                {count}
+              </CardTitle>
+              <div className="absolute right-4 top-4">
+                <Badge
+                  variant="outline"
+                  className="flex gap-1 rounded-lg text-xs border-border text-foreground"
+                >
+                  {meta.icon}
+                  {meta.trendText}
+                </Badge>
+              </div>
+            </CardHeader>
+          </Card>
+        )
+      })}
     </div>
   )
 }

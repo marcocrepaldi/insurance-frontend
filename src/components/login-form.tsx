@@ -42,12 +42,12 @@ export function LoginForm({
       localStorage.setItem('refresh_token', refreshToken)
       localStorage.setItem('user', JSON.stringify(user))
 
-      toast.success('Login bem-sucedido!')
+      toast.success('Login realizado com sucesso!')
       router.push('/dashboard')
     } catch (error: any) {
       const message =
         error.response?.data?.message ||
-        'Falha no login. Verifique suas credenciais.'
+        'Não foi possível realizar o login. Verifique suas credenciais.'
       toast.error(typeof message === 'string' ? message : message.join(', '))
       console.error('Erro no login:', error)
     } finally {
@@ -59,25 +59,28 @@ export function LoginForm({
     <div className={className} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Bem-vindo de volta</CardTitle>
-          <CardDescription>
-            Faça login com seu e-mail e senha
+          <CardTitle className="text-xl font-semibold">
+            Acesse sua conta
+          </CardTitle>
+          <CardDescription className="text-sm text-muted-foreground">
+            Entre com seu e-mail e senha para continuar
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin}>
             <div className="grid gap-6">
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">E-mail</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder="voce@exemplo.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
+
               <div className="grid gap-2">
                 <Label htmlFor="password">Senha</Label>
                 <div className="relative">
@@ -94,6 +97,7 @@ export function LoginForm({
                     onClick={() => setShowPassword((prev) => !prev)}
                     className="absolute inset-y-0 right-2 flex items-center text-muted-foreground"
                     tabIndex={-1}
+                    aria-label="Mostrar ou ocultar senha"
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -103,29 +107,32 @@ export function LoginForm({
                   </button>
                 </div>
               </div>
+
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Carregando...' : 'Login'}
+                {loading ? 'Entrando...' : 'Entrar'}
               </Button>
-              <div className="text-center text-sm">
-                Ainda não tem uma conta?{' '}
+
+              <p className="text-center text-sm text-muted-foreground">
+                Não possui uma conta?{' '}
                 <a href="#" className="underline underline-offset-4">
                   Cadastre-se
                 </a>
-              </div>
+              </p>
             </div>
           </form>
         </CardContent>
       </Card>
-      <div className="text-center text-xs text-muted-foreground mt-2">
+
+      <p className="text-center text-xs text-muted-foreground mt-4">
         Ao continuar, você concorda com nossos{' '}
         <a href="#" className="underline">
-          Termos de uso
+          Termos de Uso
         </a>{' '}
         e{' '}
         <a href="#" className="underline">
-          Política de privacidade
+          Política de Privacidade
         </a>.
-      </div>
+      </p>
     </div>
   )
 }
