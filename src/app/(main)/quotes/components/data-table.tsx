@@ -3,7 +3,6 @@
 import * as React from "react"
 import { useRouter } from "next/navigation"
 import {
-  ColumnDef,
   Row,
   useReactTable,
   getCoreRowModel,
@@ -34,14 +33,32 @@ import { CSS } from "@dnd-kit/utilities"
 
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
 import { formatCurrency, formatDate } from "@/lib/formatters"
 import { InsuranceQuote } from "@/types/insuranceQuotesType"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { SlidersHorizontal } from "lucide-react"
 import { DataTablePagination } from "./data-table-pagionation"
-import { CreateProposalDialog } from "../components/create-proposal-dialog"
+import { CreateProposalDialog } from "./create-proposal-dialog"
+import { QuoteActionsDropdown } from "./quote-actions-dropdown"
+import { EditQuoteDialog } from "./EditQuoteDialog"
+import { toast } from "sonner"
+
+const stageColorMap: Record<InsuranceQuote["stage"], string> = {
+  ABERTURA: "bg-gray-100 text-gray-800",
+  EM_ABORDAGEM: "bg-yellow-100 text-yellow-800",
+  PROPOSTA_ENVIADA: "bg-blue-100 text-blue-800",
+  EM_NEGOCIACAO: "bg-orange-100 text-orange-800",
+  APROVADA: "bg-green-100 text-green-800",
+  PERDIDA: "bg-red-100 text-red-800",
+  CANCELADA: "bg-muted text-muted-foreground",
+}
+
+const serviceTypeLabels: Record<string, string> = {
+  SEGURO_CARRO: "Seguro de Carro",
+  SEGURO_MOTO: "Seguro de Moto",
+  SAUDE_ODONTO: "Saúde / Odonto",
+}
 
 function DragHandle({ id }: { id: string }) {
   const { attributes, listeners } = useSortable({ id })
@@ -61,17 +78,11 @@ function DragHandle({ id }: { id: string }) {
 function ProposalActions({ quote }: { quote: InsuranceQuote }) {
   const router = useRouter()
   const hasProposals = (quote.proposals ?? []).length > 0
-
   const [open, setOpen] = React.useState(false)
 
   if (hasProposals) {
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => router.push(`/quotes/${quote.id}/proposals`)}
-        title="Ver propostas cadastradas"
-      >
+      <Button variant="outline" size="sm" onClick={() => router.push(`/quotes/${quote.id}/proposals`)}>
         Ver Propostas
       </Button>
     )
@@ -79,116 +90,53 @@ function ProposalActions({ quote }: { quote: InsuranceQuote }) {
 
   return (
     <>
-      <Button
-        variant="default"
-        size="sm"
-        onClick={() => setOpen(true)}
-        title="Cadastrar nova proposta"
-      >
+      <Button variant="default" size="sm" onClick={() => setOpen(true)}>
         Cadastrar Proposta
       </Button>
-      <CreateProposalDialog
-        open={open}
-        onOpenChange={setOpen}
-        quoteId={quote.id}
-      />
+      <CreateProposalDialog open={open} onOpenChange={setOpen} quoteId={quote.id} />
     </>
   )
 }
 
-const serviceTypeLabels: Record<string, string> = {
-  SEGURO_CARRO: "Seguro de Carro",
-  SEGURO_MOTO: "Seguro de Moto",
-  SEGURO_CAMINHAO: "Seguro de Caminhão",
-  SEGURO_FROTAS: "Seguro de Frotas",
-  AUTO_POR_ASSINATURA: "Auto por Assinatura",
-  AUTO_POPULAR: "Auto Popular",
-  ASSISTENCIA_24H: "Assistência 24h",
-  SEGURO_RESIDENCIAL: "Seguro Residencial",
-  SEGURO_CONDOMINIO: "Seguro Condomínio",
-  SEGURO_EMPRESARIAL: "Seguro Empresarial",
-  SEGURO_PATRIMONIAL: "Seguro Patrimonial",
-  SEGURO_EQUIPAMENTOS: "Seguro Equipamentos",
-  SEGURO_AGRICOLA: "Seguro Agrícola",
-  VIDA_INDIVIDUAL: "Vida Individual",
-  VIDA_EM_GRUPO: "Vida em Grupo",
-  ACIDENTES_PESSOAIS: "Acidentes Pessoais",
-  SEGURO_FUNERAL: "Seguro Funeral",
-  DOENCAS_GRAVES: "Doenças Graves",
-  SEGURO_PRESTAMISTA: "Seguro Prestamista",
-  VIAGEM_NACIONAL_INTERNACIONAL: "Viagem Nacional/Internacional",
-  VIAGEM_INTERCAMBIO: "Viagem Intercâmbio",
-  VIAGEM_BAGAGEM: "Viagem - Bagagem",
-  VIAGEM_COBERTURA_MEDICA: "Viagem - Cobertura Médica",
-  RC_PROFISSIONAL: "RC Profissional",
-  D_O: "D&O",
-  E_O: "E&O",
-  GARANTIA: "Garantia",
-  CYBER: "Cyber",
-  FIANCAS: "Fianças",
-  CREDITO: "Crédito",
-  RC_LIBERAIS: "RC Liberais",
-  EQUIPAMENTOS_TRABALHO: "Equipamentos de Trabalho",
-  VIDA_MEI: "Vida MEI",
-  CONSORCIO: "Consórcio",
-  PREVIDENCIA_PRIVADA: "Previdência Privada",
-  CAPITALIZACAO: "Capitalização",
-  ASSISTENCIAS_AVULSAS: "Assistências Avulsas",
-  SAUDE_ODONTO: "Saúde / Odonto",
+function StageCell({ row }: { row: Row<InsuranceQuote> }) {
+  const [value, setValue] = React.useState<InsuranceQuote["stage"]>(row.original.stage)
+  const [loading, setLoading] = React.useState(false)
+
+  const handleChange = async (newStage: InsuranceQuote["stage"]) => {
+    setValue(newStage)
+    setLoading(true)
+    try {
+      const token = localStorage.getItem("jwt_token")
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/insurance-quotes/${row.original.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ stage: newStage }),
+      })
+      toast.success("Status atualizado com sucesso.")
+    } catch {
+      toast.error("Erro ao atualizar status.")
+      setValue(row.original.stage)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <select
+      value={value}
+      onChange={(e) => handleChange(e.target.value as InsuranceQuote["stage"])}
+      disabled={loading}
+      className={`text-xs rounded px-2 py-1 ${stageColorMap[value]}`}
+    >
+      {Object.keys(stageColorMap).map((key) => (
+        <option key={key} value={key}>{key}</option>
+      ))}
+    </select>
+  )
 }
-
-const stageColorMap: Record<string, string> = {
-  ABERTURA: "bg-gray-100 text-gray-800",
-  EM_ABORDAGEM: "bg-yellow-100 text-yellow-800",
-  PROPOSTA_ENVIADA: "bg-blue-100 text-blue-800",
-  EM_NEGOCIACAO: "bg-orange-100 text-orange-800",
-  APROVADA: "bg-green-100 text-green-800",
-  PERDIDA: "bg-red-100 text-red-800",
-  CANCELADA: "bg-muted text-muted-foreground",
-}
-
-export const defaultColumns: ColumnDef<InsuranceQuote>[] = [
-  {
-    id: "drag",
-    header: () => null,
-    cell: ({ row }) => <DragHandle id={row.original.id} />, size: 30,
-  },
-  { accessorKey: "title", header: "Título", cell: ({ row }) => <div className="font-medium">{row.original.title}</div> },
-  { accessorKey: "client.name", header: "Cliente", cell: ({ row }) => row.original.client?.name || row.original.clientName || "—" },
-  { accessorKey: "producer.name", header: "Produtor", cell: ({ row }) => row.original.producer?.name || row.original.producerName || "—" },
-  {
-    accessorKey: "serviceType",
-    header: "Tipo de Serviço",
-    cell: ({ row }) => serviceTypeLabels[row.original.serviceType] || row.original.serviceType,
-  },
-  {
-    accessorKey: "stage",
-    header: "Status",
-    cell: ({ row }) => (
-      <Badge className={stageColorMap[row.original.stage] || "bg-muted"}>
-        {row.original.stage}
-      </Badge>
-    ),
-  },
-  {
-    accessorKey: "expectedPremium",
-    header: "Prêmio Estimado",
-    cell: ({ row }) => row.original.expectedPremium !== null ? formatCurrency(row.original.expectedPremium) : "—",
-  },
-  {
-    accessorKey: "proposalSentAt",
-    header: "Data de Envio",
-    cell: ({ row }) => row.original.proposalSentAt ? formatDate(row.original.proposalSentAt) : "—",
-  },
-  {
-    accessorKey: "expectedDecisionDate",
-    header: "Decisão Esperada",
-    cell: ({ row }) => row.original.expectedDecisionDate ? formatDate(row.original.expectedDecisionDate) : "—",
-  },
-  { accessorKey: "createdAt", header: "Criado em", cell: ({ row }) => formatDate(row.original.createdAt) },
-  { id: "actions", header: "Ações", cell: ({ row }) => <ProposalActions quote={row.original} /> },
-]
-
 
 function DraggableRow({ row }: { row: Row<InsuranceQuote> }) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({ id: row.original.id })
@@ -211,6 +159,8 @@ export function DataTable({ data, isValidating }: { data: InsuranceQuote[]; isVa
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [globalFilter, setGlobalFilter] = React.useState("")
   const [sorting, setSorting] = React.useState<SortingState>([])
+  const [editQuote, setEditQuote] = React.useState<InsuranceQuote | null>(null)
+  const router = useRouter()
 
   const sensors = useSensors(
     useSensor(MouseSensor),
@@ -220,7 +170,73 @@ export function DataTable({ data, isValidating }: { data: InsuranceQuote[]; isVa
 
   const table = useReactTable({
     data: tableData,
-    columns: defaultColumns,
+    columns: [
+      {
+        id: "drag",
+        header: () => null,
+        cell: ({ row }) => <DragHandle id={row.original.id} />,
+        size: 30,
+      },
+      {
+        accessorKey: "title",
+        header: "Título",
+        cell: ({ row }) => <div className="font-medium">{row.original.title}</div>,
+      },
+      {
+        accessorKey: "client.name",
+        header: "Cliente",
+        cell: ({ row }) => row.original.client?.name || row.original.clientName || "—",
+      },
+      {
+        accessorKey: "producer.name",
+        header: "Produtor",
+        cell: ({ row }) => row.original.producer?.name || row.original.producerName || "—",
+      },
+      {
+        accessorKey: "serviceType",
+        header: "Tipo de Serviço",
+        cell: ({ row }) => serviceTypeLabels[row.original.serviceType] || row.original.serviceType,
+      },
+      {
+        accessorKey: "stage",
+        header: "Status",
+        cell: StageCell,
+      },
+      {
+        accessorKey: "expectedPremium",
+        header: "Prêmio Estimado",
+        cell: ({ row }) => row.original.expectedPremium !== null ? formatCurrency(row.original.expectedPremium) : "—",
+      },
+      {
+        accessorKey: "proposalSentAt",
+        header: "Data de Envio",
+        cell: ({ row }) => row.original.proposalSentAt ? formatDate(row.original.proposalSentAt) : "—",
+      },
+      {
+        accessorKey: "expectedDecisionDate",
+        header: "Decisão Esperada",
+        cell: ({ row }) => row.original.expectedDecisionDate ? formatDate(row.original.expectedDecisionDate) : "—",
+      },
+      {
+        accessorKey: "createdAt",
+        header: "Criado em",
+        cell: ({ row }) => formatDate(row.original.createdAt),
+      },
+      {
+        id: "actions",
+        header: "Ações",
+        cell: ({ row }) => (
+          <div className="flex items-center gap-2">
+            <ProposalActions quote={row.original} />
+            <QuoteActionsDropdown
+              quote={row.original}
+              onEdit={() => setEditQuote(row.original)}
+              onDeleted={() => setTableData((prev) => prev.filter((q) => q.id !== row.original.id))}
+            />
+          </div>
+        ),
+      },
+    ],
     state: { columnVisibility, globalFilter, sorting },
     onColumnVisibilityChange: setColumnVisibility,
     onGlobalFilterChange: setGlobalFilter,
@@ -310,7 +326,7 @@ export function DataTable({ data, isValidating }: { data: InsuranceQuote[]; isVa
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={defaultColumns.length} className="text-center">
+                  <TableCell colSpan={table.getAllColumns().length} className="text-center">
                     Nenhum resultado encontrado.
                   </TableCell>
                 </TableRow>
@@ -320,6 +336,20 @@ export function DataTable({ data, isValidating }: { data: InsuranceQuote[]; isVa
         </SortableContext>
       </DndContext>
       <DataTablePagination table={table} className="px-4 py-2" />
+
+      {editQuote && (
+        <EditQuoteDialog
+          quote={editQuote}
+          open={!!editQuote}
+          onOpenChange={(open) => {
+            if (!open) setEditQuote(null)
+          }}
+          onUpdated={() => {
+            setEditQuote(null)
+            router.refresh()
+          }}
+        />
+      )}
     </div>
   )
 }
