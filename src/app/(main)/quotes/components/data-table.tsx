@@ -147,15 +147,15 @@ const stageColorMap: Record<string, string> = {
   CANCELADA: "bg-muted text-muted-foreground",
 }
 
-const defaultColumns: ColumnDef<InsuranceQuote>[] = [
+export const defaultColumns: ColumnDef<InsuranceQuote>[] = [
   {
     id: "drag",
     header: () => null,
     cell: ({ row }) => <DragHandle id={row.original.id} />, size: 30,
   },
   { accessorKey: "title", header: "Título", cell: ({ row }) => <div className="font-medium">{row.original.title}</div> },
-  { accessorKey: "clientName", header: "Cliente" },
-  { accessorKey: "producerName", header: "Produtor" },
+  { accessorKey: "client.name", header: "Cliente", cell: ({ row }) => row.original.client?.name || row.original.clientName || "—" },
+  { accessorKey: "producer.name", header: "Produtor", cell: ({ row }) => row.original.producer?.name || row.original.producerName || "—" },
   {
     accessorKey: "serviceType",
     header: "Tipo de Serviço",
@@ -188,6 +188,7 @@ const defaultColumns: ColumnDef<InsuranceQuote>[] = [
   { accessorKey: "createdAt", header: "Criado em", cell: ({ row }) => formatDate(row.original.createdAt) },
   { id: "actions", header: "Ações", cell: ({ row }) => <ProposalActions quote={row.original} /> },
 ]
+
 
 function DraggableRow({ row }: { row: Row<InsuranceQuote> }) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({ id: row.original.id })
