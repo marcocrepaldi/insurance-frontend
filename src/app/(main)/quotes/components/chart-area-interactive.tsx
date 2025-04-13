@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts"
-import { useQuoteChartData } from "../api/useQuoteChartData"
+import { useQuoteChartData } from "../hooks/useQuoteChartData"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import {

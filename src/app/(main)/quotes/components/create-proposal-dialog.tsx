@@ -8,8 +8,7 @@ import axios from "axios"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 
-import { getInsurers, Insurer } from "../api/use-insurers"
-
+import { getInsurers, Insurer } from "../hooks/use-insurers"
 import {
   Dialog,
   DialogContent,
@@ -34,16 +33,14 @@ const createProposalSchema = z.object({
   totalPremium: z.coerce.number().min(0.01, "Prêmio total obrigatório"),
   insuredAmount: z.coerce.number().min(0.01, "Valor segurado obrigatório"),
   observations: z.string().nullable().optional(),
-  file: z
-    .any()
-    .refine(
-      (file) =>
-        file?.[0] &&
-        ["application/pdf", "image/png", "image/jpeg"].includes(file[0].type),
-      {
-        message: "Arquivo inválido. Apenas PDF ou imagem.",
-      }
-    ),
+  file: z.any().refine(
+    (file) =>
+      file?.[0] &&
+      ["application/pdf", "image/png", "image/jpeg"].includes(file[0].type),
+    {
+      message: "Arquivo inválido. Apenas PDF ou imagem.",
+    }
+  ),
 })
 
 type CreateProposalFormValues = z.infer<typeof createProposalSchema>
@@ -150,42 +147,39 @@ export function CreateProposalDialog({
               </SelectContent>
             </Select>
             {errors.insurerName && (
-              <p className="text-sm text-red-500">
-                {errors.insurerName.message}
-              </p>
+              <p className="text-sm text-red-500">{errors.insurerName.message}</p>
             )}
           </div>
+
           <div className="grid gap-2">
             <Label>Prêmio Total</Label>
             <Input type="number" step="0.01" {...register("totalPremium")} />
             {errors.totalPremium && (
-              <p className="text-sm text-red-500">
-                {errors.totalPremium.message}
-              </p>
+              <p className="text-sm text-red-500">{errors.totalPremium.message}</p>
             )}
           </div>
+
           <div className="grid gap-2">
             <Label>Valor Segurado</Label>
             <Input type="number" step="0.01" {...register("insuredAmount")} />
             {errors.insuredAmount && (
-              <p className="text-sm text-red-500">
-                {errors.insuredAmount.message}
-              </p>
+              <p className="text-sm text-red-500">{errors.insuredAmount.message}</p>
             )}
           </div>
+
           <div className="grid gap-2">
             <Label>Observações</Label>
             <Textarea rows={3} {...register("observations")} />
           </div>
+
           <div className="grid gap-2">
             <Label>Arquivo (PDF ou imagem)</Label>
             <Input type="file" accept=".pdf,image/*" {...register("file")} />
             {errors.file && (
-              <p className="text-sm text-red-500">
-                {errors.file.message as string}
-              </p>
+              <p className="text-sm text-red-500">{String(errors.file.message)}</p>
             )}
           </div>
+
           <Button type="submit" disabled={isSubmitting} className="mt-2">
             {isSubmitting ? "Enviando..." : "Cadastrar"}
           </Button>
