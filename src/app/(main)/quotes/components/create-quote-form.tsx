@@ -162,7 +162,7 @@ export default function CreateQuoteForm({ onSuccess }: { onSuccess?: () => void 
         </div>
 
         <div>
-          <Label htmlFor="serviceType">Tipo de Serviço</Label>
+          <Label htmlFor="serviceType">Tipo de Produto</Label>
           <Select
             onValueChange={(value) => {
               setValue("serviceType", value as FormData["serviceType"])

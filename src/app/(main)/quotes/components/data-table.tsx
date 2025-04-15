@@ -168,6 +168,48 @@ function DraggableRow({ row }: { row: Row<InsuranceQuote> }) {
   )
 }
 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+
+function ServiceDetailsCell({ details }: { details?: any }) {
+  const [open, setOpen] = React.useState(false)
+
+  if (!details || (typeof details === "object" && Object.keys(details).length === 0))
+    return "—"
+
+  return (
+    <>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setOpen(true)}
+        className="text-xs"
+      >
+        Ver Detalhes
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Detalhes do Serviço</DialogTitle>
+          </DialogHeader>
+          <div className="text-sm max-h-[400px] overflow-auto whitespace-pre-wrap break-words">
+            <pre className="text-muted-foreground">
+              {typeof details === "string"
+                ? details
+                : JSON.stringify(details, null, 2)}
+            </pre>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}
+
+
 export function DataTable({ data, isValidating }: { data: InsuranceQuote[]; isValidating?: boolean }) {
   const [tableData, setTableData] = React.useState<InsuranceQuote[]>(data)
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -197,7 +239,8 @@ export function DataTable({ data, isValidating }: { data: InsuranceQuote[]; isVa
         expectedDecisionDate: "",
         updatedAt: "",
         producerName: "",
-        proposals: ""
+        proposals: "",
+        serviceDetails: ""
       },
       transformRow: (row) => ({
         title: row.title,
@@ -253,7 +296,7 @@ export function DataTable({ data, isValidating }: { data: InsuranceQuote[]; isVa
     },
     {
       accessorKey: "serviceType",
-      header: "Tipo de Serviço",
+      header: "Tipo de Produto",
       cell: ({ row }) => serviceTypeLabels[row.original.serviceType] || row.original.serviceType,
     },
     {
@@ -281,6 +324,14 @@ export function DataTable({ data, isValidating }: { data: InsuranceQuote[]; isVa
       header: "Criado em",
       cell: ({ row }) => formatDate(row.original.createdAt),
     },
+    {
+      id: "serviceDetails",
+      header: "Detalhes",
+      cell: ({ row }) => (
+        <ServiceDetailsCell details={row.original.serviceDetails} />
+      ),
+    },
+   
     {
       id: "actions",
       header: "Ações",

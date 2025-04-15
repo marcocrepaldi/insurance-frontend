@@ -1,4 +1,5 @@
 export type InsuranceQuote = {
+  serviceDetails: unknown
   producer: any
   client: any
   id: string
