@@ -118,7 +118,7 @@ export function ChartAreaInteractive() {
     return (
       <Card className="@container/card">
         <CardHeader>
-          <CardTitle>Cotações por Tipo de Serviço</CardTitle>
+          <CardTitle>Cotações por Tipo de Produto</CardTitle>
           <CardDescription>Carregando gráfico...</CardDescription>
         </CardHeader>
       </Card>
@@ -128,7 +128,7 @@ export function ChartAreaInteractive() {
   return (
     <Card className="@container/card">
       <CardHeader className="relative space-y-2">
-        <CardTitle>Cotações por Tipo de Serviço</CardTitle>
+        <CardTitle>Cotações por Tipo de Produto</CardTitle>
         <CardDescription>
           <span className="text-muted-foreground">Últimos {timeRange} | Modo: {mode}</span>
         </CardDescription>

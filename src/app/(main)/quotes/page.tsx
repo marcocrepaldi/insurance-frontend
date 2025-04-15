@@ -28,14 +28,14 @@ export default function Page() {
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
               {/* Ação principal */}
               <div className="flex items-center justify-between px-4 lg:px-6">
-                <h1 className="text-xl font-semibold">Cotações de Seguro</h1>
+                <h1 className="text-xl font-semibold">Orçamento de Produto</h1>
                 <Dialog open={open} onOpenChange={setOpen}>
                   <DialogTrigger asChild>
                     <Button variant="default">Criar Cotação</Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-2xl">
                     <DialogHeader>
-                      <DialogTitle>Nova Cotação de Seguro</DialogTitle>
+                      <DialogTitle>Nova Cotação de Produto</DialogTitle>
                     </DialogHeader>
                     <CreateQuoteForm onSuccess={() => setOpen(false)} />
                   </DialogContent>

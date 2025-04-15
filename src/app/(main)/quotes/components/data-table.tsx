@@ -105,7 +105,7 @@ function ProposalActions({ quote }: { quote: InsuranceQuote }) {
   ) : (
     <>
       <Button variant="default" size="sm" onClick={() => setOpen(true)}>
-        Cadastrar Proposta
+        Cadastrar Orçamento
       </Button>
       <CreateProposalDialog open={open} onOpenChange={setOpen} quoteId={quote.id} />
     </>
