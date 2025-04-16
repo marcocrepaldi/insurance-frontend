@@ -6,6 +6,7 @@ import { userSchema } from "../schemas/users-schema"
 import { mapUserToTableItem, tableSchema } from "@/lib/mapUsersToTable"
 
 const userListSchema = z.array(userSchema)
+const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 export function useUsersForTable() {
   const [data, setData] = useState<z.infer<typeof tableSchema>[]>([])
@@ -13,8 +14,13 @@ export function useUsersForTable() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    if (!API_URL) {
+      setError("❌ API URL não configurada corretamente.")
+      setLoading(false)
+      return
+    }
+
     const token = localStorage.getItem("jwt_token")
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://insurance-api-production-55fa.up.railway.app/api" // Use the environment variable for API URL
 
     if (!token) {
       console.warn("⚠️ JWT token não encontrado no localStorage")
@@ -22,7 +28,7 @@ export function useUsersForTable() {
       return
     }
 
-    fetch(`${apiUrl}/users`, {
+    fetch(`${API_URL}/users`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -38,7 +44,7 @@ export function useUsersForTable() {
         const json = await res.json()
         const payload = Array.isArray(json) ? json : json.data
         try {
-          const parsed = userListSchema.parse(payload) // Zod parsing to ensure the structure
+          const parsed = userListSchema.parse(payload)
           const mapped = parsed.map(mapUserToTableItem)
           setData(mapped)
         } catch (err) {

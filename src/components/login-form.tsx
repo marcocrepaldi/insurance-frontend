@@ -16,6 +16,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
 export function LoginForm({
   className,
   ...props
@@ -31,10 +33,12 @@ export function LoginForm({
     setLoading(true)
 
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL || 'https://insurance-api-production-55fa.up.railway.app/api'}/auth/login`,
-        { email, password }
-      )
+      if (!API_URL) throw new Error('API URL não configurada.')
+
+      const response = await axios.post(`${API_URL}/auth/login`, {
+        email,
+        password,
+      })
 
       const { accessToken, refreshToken, user } = response.data
 

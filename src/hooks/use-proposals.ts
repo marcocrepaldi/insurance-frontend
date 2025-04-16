@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
 export function useProposals() {
   const router = useRouter()
   const { quoteId } = router.query
@@ -11,16 +13,17 @@ export function useProposals() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!quoteId || Array.isArray(quoteId)) return
+    if (!quoteId || Array.isArray(quoteId) || !API_URL) return
 
-    const token = typeof window !== "undefined" ? localStorage.getItem("jwt_token") : null
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("jwt_token") : null
     if (!token) return
 
     const controller = new AbortController()
 
-    fetch(`https://insurance-api-production-55fa.up.railway.app/api/insurance-quotes/proposals/${quoteId}`, {
+    fetch(`${API_URL}/insurance-quotes/proposals/${quoteId}`, {
       headers: {
-        "Authorization": `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
       signal: controller.signal,
     })
