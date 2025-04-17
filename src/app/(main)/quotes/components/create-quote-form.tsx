@@ -78,8 +78,11 @@ export default function CreateQuoteForm({ onSuccess }: { onSuccess?: () => void 
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = methods
+
+  const expectedPremium = watch("expectedPremium")
 
   useEffect(() => {
     async function fetchData() {
@@ -116,7 +119,6 @@ export default function CreateQuoteForm({ onSuccess }: { onSuccess?: () => void 
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {/* Campos fixos */}
         <div>
           <Label htmlFor="title">Título</Label>
           <Input id="title" {...register("title" as const)} disabled={isSubmitting} />
@@ -132,11 +134,22 @@ export default function CreateQuoteForm({ onSuccess }: { onSuccess?: () => void 
           <Label htmlFor="expectedPremium">Prêmio Estimado</Label>
           <Input
             id="expectedPremium"
-            type="number"
-            step="0.01"
-            {...register("expectedPremium" as const)}
+            type="text"
+            inputMode="decimal"
+            value={expectedPremium?.toLocaleString("pt-BR", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }) || ""}
+            onChange={(e) => {
+              const value = e.target.value.replace(/\D/g, "")
+              const formatted = (Number(value) / 100) || 0
+              setValue("expectedPremium", formatted, { shouldValidate: true })
+            }}
             disabled={isSubmitting}
           />
+          {errors.expectedPremium && (
+            <p className="text-sm text-red-500">{errors.expectedPremium.message}</p>
+          )}
         </div>
 
         <div>
@@ -224,7 +237,6 @@ export default function CreateQuoteForm({ onSuccess }: { onSuccess?: () => void 
           )}
         </div>
 
-        {/* Campos Dinâmicos */}
         <div className="mt-4 border-t pt-4">
           <h4 className="text-sm font-medium mb-2">Campos Específicos</h4>
           <ServiceFields serviceType={serviceType} />

@@ -1,4 +1,3 @@
-// src/quotes/components/data-table-proposals.tsx
 'use client'
 
 import * as React from 'react'
@@ -33,6 +32,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { CreateProposalDialog } from './create-proposal-dialog'
+import { usePathname } from 'next/navigation'
 
 export type Proposal = {
   id: string
@@ -61,9 +62,19 @@ export function DataTableDemo({ data }: DataTableDemoProps) {
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
   const [downloadingId, setDownloadingId] = React.useState<string | null>(null)
+  const [dialogOpen, setDialogOpen] = React.useState(false)
 
-  const formatCurrency = (value: number) =>
-    value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+  const pathname = usePathname()
+  const match = pathname?.match(/\/quotes\/([a-f0-9-]+)\/proposals/)
+  const quoteId = match ? match[1] : null
+
+  const formatCurrency = (value: number | null | undefined) =>
+    typeof value === 'number'
+      ? value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+      : 'R$ 0,00'
+  
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL
 
   const columns: ColumnDef<Proposal>[] = [
     {
@@ -123,8 +134,8 @@ export function DataTableDemo({ data }: DataTableDemoProps) {
         return (
           <div className="flex flex-wrap gap-1 max-w-[320px] overflow-hidden">
             {coverages.map((cob, i) => (
-              <Badge key={i} variant="outline" className="text-xs truncate">
-                {cob.name} ({formatCurrency(Number(cob.value) || 0)})
+              <Badge key={i} variant="outline" className="text-xs truncate" title={`${cob.name}: ${formatCurrency(cob.value)}`}>
+                {cob.name} ({formatCurrency(cob.value)})
               </Badge>
             ))}
           </div>
@@ -150,11 +161,11 @@ export function DataTableDemo({ data }: DataTableDemoProps) {
         const token = typeof window !== 'undefined' ? localStorage.getItem('jwt_token') : null
 
         const handleDownload = async () => {
-          if (!fileName || !token) return toast.error('Arquivo não encontrado.')
+          if (!fileName || !token || !API_URL) return toast.error('Arquivo não encontrado.')
 
           setDownloadingId(proposal.id)
           try {
-            const res = await fetch(`https://insurance-api-production-55fa.up.railway.app/api/insurance-quotes/proposals/pdf/${fileName}`, {
+            const res = await fetch(`${API_URL}/insurance-quotes/proposals/pdf/${fileName}`, {
               headers: { Authorization: `Bearer ${token}` },
             })
             if (!res.ok) throw new Error()
@@ -175,9 +186,9 @@ export function DataTableDemo({ data }: DataTableDemoProps) {
         }
 
         const handlePreview = async () => {
-          if (!fileName || !token) return toast.error('Arquivo não encontrado.')
+          if (!fileName || !token || !API_URL) return toast.error('Arquivo não encontrado.')
           try {
-            const res = await fetch(`https://insurance-api-production-55fa.up.railway.app/api/insurance-quotes/proposals/pdf/${fileName}`, {
+            const res = await fetch(`${API_URL}/insurance-quotes/proposals/pdf/${fileName}`, {
               headers: { Authorization: `Bearer ${token}` },
             })
             if (!res.ok) throw new Error()
@@ -216,7 +227,7 @@ export function DataTableDemo({ data }: DataTableDemoProps) {
 
   return (
     <div className="w-full space-y-4">
-      <div className="flex items-center py-2">
+      <div className="flex items-center justify-between py-2">
         <Input
           placeholder="Filtrar seguradora..."
           value={(table.getColumn('insurerName')?.getFilterValue() as string) ?? ''}
@@ -225,6 +236,14 @@ export function DataTableDemo({ data }: DataTableDemoProps) {
           }
           className="max-w-sm"
         />
+
+        {quoteId && (
+          <CreateProposalDialog
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+            quoteId={quoteId}
+          />
+        )}
       </div>
 
       <div className="rounded-md border overflow-x-auto">

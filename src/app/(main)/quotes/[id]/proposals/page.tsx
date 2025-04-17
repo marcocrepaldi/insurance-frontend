@@ -1,64 +1,51 @@
-"use client" // Diretriz para marcar este componente como Cliente
+"use client"
 
 import { useEffect, useState } from "react"
-import { usePathname } from "next/navigation" // Usando 'usePathname' para obter a URL
+import { usePathname } from "next/navigation"
 import { SectionCards } from "@/components/section-cards"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { DataTableDemo } from "../../components/data-table-proposals"
 import { ProposalCards } from "../../components/proposal-cards"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogTrigger } from "@/components/ui/dialog"
+import { CreateProposalDialog } from "../../components/create-proposal-dialog"
 
 export default function Page() {
-  const pathname = usePathname() // Usando 'usePathname' para obter a URL
-  console.log("Pathname:", pathname); // Verificando o pathname para garantir que ele está correto
-
-  const regex = /\/quotes\/([a-f0-9-]+)\/proposals/; // Regex para extrair o ID da URL
-  const match = pathname?.match(regex); // Aplica o regex na URL
-  const id = match ? match[1] : null; // Se encontrado, pega o ID, caso contrário, é null
+  const pathname = usePathname()
+  const regex = /\/quotes\/([a-f0-9-]+)\/proposals/
+  const match = pathname?.match(regex)
+  const id = match ? match[1] : null
   const [quoteData, setQuoteData] = useState<any>(null)
-
-  console.log(`ID extraído: ${id}`);
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   useEffect(() => {
     if (!id) return
 
     const fetchQuoteData = async () => {
       try {
-        // Obter o JWT token do localStorage
         const jwtToken = localStorage.getItem("jwt_token")
-        
         if (!jwtToken) {
-          console.error("Token não encontrado")
+          console.error("Token JWT não encontrado")
           return
         }
 
-        // Log da URL para garantir que a URL está correta
-        const url = `https://insurance-api-production-55fa.up.railway.app/api/insurance-quotes/${id}`
-        console.log("URL da requisição:", url);
-
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/insurance-quotes/${id}`
         const response = await fetch(url, {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${jwtToken}`, // Envia o JWT token como Bearer no cabeçalho
+            Authorization: `Bearer ${jwtToken}`,
             "Content-Type": "application/json",
           },
         })
-        
-        // Verifica se a resposta foi ok, senão lança um erro
+
         if (!response.ok) {
           throw new Error(`Erro ao buscar dados: ${response.statusText}`)
         }
 
-        // Exibe o status da resposta
-        console.log("Status da resposta:", response.status);
-
         const data = await response.json()
         setQuoteData(data)
-
-        // Log da resposta da API
-        console.log("Resposta da API:", data);
-
       } catch (error) {
-        console.error("Erro ao buscar dados:", error)
+        console.error("Erro ao buscar dados da cotação:", error)
       }
     }
 
@@ -71,20 +58,26 @@ export default function Page() {
         <div className="flex flex-1 flex-col bg-background text-foreground">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              {/* Cartões com estatísticas principais */}
               <SectionCards />
+              <ProposalCards data={[]} />
 
-              {/* Gráfico interativo */}
-              < ProposalCards data={[]}/>
+              {id && (
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                  <div className="flex justify-end px-4 lg:px-6">
+                    <DialogTrigger asChild>
+                      <Button variant="default">Cadastrar Proposta</Button>
+                    </DialogTrigger>
+                  </div>
+                  <CreateProposalDialog open={dialogOpen} onOpenChange={setDialogOpen} quoteId={id} />
+                </Dialog>
+              )}
 
-              {/* Tabela de dados */}
               <div className="px-4 lg:px-6">
                 <div className="rounded-xl border border-border bg-card text-card-foreground p-4 shadow-sm">
-                  {/* Passa as propostas para o DataTableDemo */}
-                  {quoteData && quoteData.proposals ? (
+                  {quoteData?.proposals?.length ? (
                     <DataTableDemo data={quoteData.proposals} />
                   ) : (
-                    <p>Carregando cotações...</p>
+                    <p>Carregando propostas...</p>
                   )}
                 </div>
               </div>

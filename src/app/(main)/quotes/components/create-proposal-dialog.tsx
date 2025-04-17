@@ -7,6 +7,7 @@ import { z } from "zod"
 import axios from "axios"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { useDropzone } from "react-dropzone"
 
 import { getInsurers, Insurer } from "../hooks/use-insurers"
 import {
@@ -33,14 +34,16 @@ const createProposalSchema = z.object({
   totalPremium: z.coerce.number().min(0.01, "Prêmio total obrigatório"),
   insuredAmount: z.coerce.number().min(0.01, "Valor segurado obrigatório"),
   observations: z.string().nullable().optional(),
-  file: z.any().refine(
-    (file) =>
-      file?.[0] &&
-      ["application/pdf", "image/png", "image/jpeg"].includes(file[0].type),
-    {
-      message: "Arquivo inválido. Apenas PDF ou imagem.",
-    }
-  ),
+  file: z
+    .any()
+    .refine(
+      (file) =>
+        file instanceof File &&
+        ["application/pdf", "image/png", "image/jpeg"].includes(file.type),
+      {
+        message: "Arquivo inválido. Apenas PDF ou imagem.",
+      }
+    ),
 })
 
 type CreateProposalFormValues = z.infer<typeof createProposalSchema>
@@ -66,6 +69,29 @@ export function CreateProposalDialog({
     reset,
   } = useForm<CreateProposalFormValues>({
     resolver: zodResolver(createProposalSchema),
+  })
+
+  const file = watch("file")
+  const totalPremium = watch("totalPremium")
+  const insuredAmount = watch("insuredAmount")
+
+  const onDrop = React.useCallback(
+    (acceptedFiles: File[]) => {
+      if (acceptedFiles?.[0]) {
+        setValue("file", acceptedFiles[0], { shouldValidate: true })
+      }
+    },
+    [setValue]
+  )
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      "application/pdf": [".pdf"],
+      "image/jpeg": [".jpg", ".jpeg"],
+      "image/png": [".png"],
+    },
+    multiple: false,
   })
 
   const [insurers, setInsurers] = React.useState<Insurer[]>([])
@@ -98,7 +124,7 @@ export function CreateProposalDialog({
     formData.append("totalPremium", data.totalPremium.toString())
     formData.append("insuredAmount", data.insuredAmount.toString())
     if (data.observations) formData.append("observations", data.observations)
-    formData.append("file", data.file[0])
+    formData.append("file", data.file)
 
     try {
       await axios.post(`${apiUrl}/insurance-quotes/proposals/upload`, formData, {
@@ -117,7 +143,12 @@ export function CreateProposalDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent
+        className="sm:max-w-lg"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Cadastrar Proposta</DialogTitle>
           <DialogDescription>
@@ -129,7 +160,7 @@ export function CreateProposalDialog({
             <Label>Seguradora</Label>
             <Select
               onValueChange={(value) => setValue("insurerName", value)}
-              defaultValue={watch("insurerName")}
+              value={watch("insurerName")}
             >
               <SelectTrigger>
                 <SelectValue
@@ -153,7 +184,19 @@ export function CreateProposalDialog({
 
           <div className="grid gap-2">
             <Label>Prêmio Total</Label>
-            <Input type="number" step="0.01" {...register("totalPremium")} />
+            <Input
+              type="text"
+              inputMode="decimal"
+              value={totalPremium?.toLocaleString("pt-BR", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }) || ""}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, "")
+                const formatted = (Number(value) / 100) || 0
+                setValue("totalPremium", formatted, { shouldValidate: true })
+              }}
+            />
             {errors.totalPremium && (
               <p className="text-sm text-red-500">{errors.totalPremium.message}</p>
             )}
@@ -161,7 +204,19 @@ export function CreateProposalDialog({
 
           <div className="grid gap-2">
             <Label>Valor Segurado</Label>
-            <Input type="number" step="0.01" {...register("insuredAmount")} />
+            <Input
+              type="text"
+              inputMode="decimal"
+              value={insuredAmount?.toLocaleString("pt-BR", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }) || ""}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, "")
+                const formatted = (Number(value) / 100) || 0
+                setValue("insuredAmount", formatted, { shouldValidate: true })
+              }}
+            />
             {errors.insuredAmount && (
               <p className="text-sm text-red-500">{errors.insuredAmount.message}</p>
             )}
@@ -174,7 +229,21 @@ export function CreateProposalDialog({
 
           <div className="grid gap-2">
             <Label>Arquivo (PDF ou imagem)</Label>
-            <Input type="file" accept=".pdf,image/*" {...register("file")} />
+            <div
+              {...getRootProps()}
+              className={`flex items-center justify-center h-32 border-2 border-dashed rounded-md cursor-pointer transition-colors ${
+                isDragActive ? "bg-muted" : "bg-background"
+              }`}
+            >
+              <input {...getInputProps()} />
+              {file ? (
+                <span className="text-sm">{file.name}</span>
+              ) : (
+                <span className="text-sm text-muted-foreground">
+                  Arraste o arquivo aqui ou clique para selecionar
+                </span>
+              )}
+            </div>
             {errors.file && (
               <p className="text-sm text-red-500">{String(errors.file.message)}</p>
             )}
